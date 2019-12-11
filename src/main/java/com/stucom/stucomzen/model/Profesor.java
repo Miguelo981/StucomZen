@@ -10,6 +10,10 @@ public class Profesor extends Persona{
     
     public Profesor(){}
     
+    public Profesor(String nombre){
+        super(nombre);
+    }
+    
     public Profesor(String experiencia, int horas) {
         this.experiencia = experiencia;
         this.horas = horas;

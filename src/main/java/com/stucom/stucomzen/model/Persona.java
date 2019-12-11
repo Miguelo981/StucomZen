@@ -9,6 +9,10 @@ public class Persona {
     
     public Persona() {
     }
+    
+    public Persona(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
+    }
 
     public Persona(String nombreUsuario, String password, String nombreCompleto) {
         this.nombreUsuario = nombreUsuario;

@@ -241,3 +241,4 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2019-11-25 18:16:43
+SELECT * FROM teacher;

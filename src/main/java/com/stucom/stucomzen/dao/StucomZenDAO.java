@@ -1,8 +1,10 @@
 package com.stucom.stucomzen.dao;
 
 import com.stucom.stucomzen.exceptions.ExceptionStucomZen;
+import com.stucom.stucomzen.model.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,30 +15,58 @@ import java.sql.Statement;
  */
 public class StucomZenDAO {
     Connection conexion;
-    
-    
-    // Función que devuelve un plato a partir del nombre
-    public Plato getPlatoByNombre(String nombre) throws SQLException, ExceptionStucomZen {
-        Plato aux = new Plato(nombre);
-        if (!existePlato(aux)) {
-            throw new ExceptionStucomZen("ERROR: No existe ningún plato con ese nombre");
+
+    // ********************* Inserts ****************************
+    public void insertarProfesor(Profesor p) throws ExceptionStucomZen, SQLException {
+        if (existeProfesor(p)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.profesorExists);
         }
-        String select = "select * from plato where nombre='" + nombre + "'";
+        String insert = "insert into teacher values (?, ?, ?, ?, ?)";
+        PreparedStatement ps = conexion.prepareStatement(insert);
+        ps.setString(1, p.getNombreUsuario());
+        ps.setString(2, p.getPassword());
+        ps.setString(3, p.getExperiencia());
+        ps.setInt(4, p.getHoras());
+        ps.setString(4, p.getNombreCompleto());
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    // Función que devuelve un plato a partir del nombre
+    public Profesor getProfesorByName(String nombre) throws SQLException, ExceptionStucomZen {
+        Profesor aux = new Profesor(nombre);
+        if (!existeProfesor(aux)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+        }
+        String select = "select * from teacher where username='" + nombre + "'";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
-        Plato p = new Plato();
+        Profesor p = new Profesor();
         if (rs.next()) {
-            p.setNombre(nombre);
-            p.setPrecio(rs.getDouble("precio"));
-            p.setTipo(rs.getString("tipo"));
-            p.setCocinero(getCocineroByNombre(rs.getString("cocinero")));
+            p.setNombreUsuario(nombre);
+            p.setExperiencia(rs.getString("expertise"));
+            p.setHoras(rs.getInt("hours"));
+            p.setNombreCompleto(rs.getString("fullname"));
+            p.setPassword(rs.getString("password"));
         }
         rs.close();
         st.close();
         return p;
     }
 
-    
+    // ********************* Funciones auxiliares ****************************
+    private boolean existeProfesor(Profesor p) throws SQLException {
+        String select = "select * from teacher where username='" + p.getNombreUsuario() + "'";
+        boolean existe;
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        existe = false;
+        if (rs.next()) {
+            existe = true;
+        }
+        return existe;
+    }
+
     // ********************* Conectar / Desconectar ****************************
     public void conectar() throws SQLException {
         String url = "jdbc:mysql://localhost:3306/zenstucom";
@@ -50,5 +80,4 @@ public class StucomZenDAO {
             conexion.close();
         }
     }
-
 }

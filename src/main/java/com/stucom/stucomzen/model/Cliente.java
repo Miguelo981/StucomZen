@@ -7,9 +7,7 @@ package com.stucom.stucomzen.model;
 public class Cliente extends Persona{
     Ciudad ciudad;
     
-    public Cliente() {
-        
-    }
+    public Cliente() {}
     
     public Cliente(Ciudad ciudad) {
         this.ciudad = ciudad;
