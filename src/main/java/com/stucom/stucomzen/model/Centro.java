@@ -20,6 +20,10 @@ public class Centro {
         this.precio = precio;
         this.propietario = propietario;
     }
+    
+    public Centro(String nombreCentro) {
+        this.nombreCentro = nombreCentro;
+    }
 
     public String getNombreCentro() {
         return nombreCentro;

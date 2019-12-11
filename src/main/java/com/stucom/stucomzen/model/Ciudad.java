@@ -12,10 +12,16 @@ package com.stucom.stucomzen.model;
 public class Ciudad {
     int idCiudad;
     String nombreCiudad;
-
+    
+    public Ciudad() {}
+    
     public Ciudad(int idCiudad, String nombreCiudad) {
         this.idCiudad = idCiudad;
         this.nombreCiudad = nombreCiudad;
+    }
+    
+    public Ciudad(int idCiudad) {
+        this.idCiudad = idCiudad;
     }
 
     public int getIdCiudad() {

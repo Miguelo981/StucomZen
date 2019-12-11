@@ -18,6 +18,10 @@ public class Propietario extends Persona{
     public Propietario(String nombreUsuario, String password, String nombreCompleto) {
         super(nombreUsuario, password, nombreCompleto);
     }
+    
+    public Propietario(String nombre) {
+        super(nombre);
+    }
 
     public String getEmail() {
         return email;
