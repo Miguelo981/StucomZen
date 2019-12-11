@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 /**
  *
@@ -185,6 +186,30 @@ public class StucomZenDAO {
     }
     
     // Función que devuelve un plato a partir del nombre
+    public Actividad getActividadById(int id) throws SQLException, ExceptionStucomZen {
+        Actividad aux = new Actividad(id);
+        if (!existeActividad(aux)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+        }
+        String select = "select * from activity where idactivity=" + id + "";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        Actividad a = new Actividad();
+        if (rs.next()) {
+            a.setIdActividad(id);
+            a.setCentro(getCentroByName(rs.getString("idcenter")));
+            a.setPrecio(rs.getDouble("price"));
+            a.setProfesor(getProfesorByName(rs.getString("teacher")));
+            a.setHoras(rs.getInt("hours"));
+            a.setLugares(rs.getInt("places"));
+            a.setNombreActividad(TipoActividad.valueOf(rs.getString("name").toUpperCase()));
+        }
+        rs.close();
+        st.close();
+        return a;
+    }
+    
+    // Función que devuelve un plato a partir del nombre
     public Ciudad getCiudadById(int id) throws SQLException, ExceptionStucomZen {
         Ciudad aux = new Ciudad(id);
         if (!existeCiudad(aux)) {
@@ -201,6 +226,45 @@ public class StucomZenDAO {
         rs.close();
         st.close();
         return c;
+    }
+    
+     // Función que devuelve un plato a partir del nombre
+    public Administrador getAdministradorByName(String nombre) throws SQLException, ExceptionStucomZen {
+        Administrador aux = new Administrador(nombre);
+        if (!existeAdministrador(aux)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+        }
+        String select = "select * from admin where username='" + nombre + "'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        Administrador a = new Administrador();
+        if (rs.next()) {
+            a.setNombreUsuario(nombre);
+            a.setPassword(rs.getString("pass"));
+        }
+        rs.close();
+        st.close();
+        return a;
+    }
+    
+     // Función que devuelve un plato a partir del nombre
+    public Registro getRegistroByNames(int idActividad, String nombreCliente) throws SQLException, ExceptionStucomZen {
+        Registro aux = new Registro(getActividadById(idActividad), getClienteByName(nombreCliente));
+        if (!existeRegistro(aux)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+        }
+        String select = "select * from registration where idactivity=" + idActividad + " and customer ='"+ nombreCliente +"'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        Registro r = new Registro();
+        if (rs.next()) {
+            r.setActividad(getActividadById(idActividad));
+            r.setCliente(getClienteByName(nombreCliente));
+            r.setFecha(LocalDate.parse(rs.getString("date")));
+        }
+        rs.close();
+        st.close();
+        return r;
     }
 
     // ********************* Funciones auxiliares ****************************
@@ -271,6 +335,32 @@ public class StucomZenDAO {
     // ********************* Funciones auxiliares ****************************
     private boolean existeCiudad(Ciudad c) throws SQLException {
         String select = "select * from owner where city=" + c.getIdCiudad() + "";
+        boolean existe;
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        existe = false;
+        if (rs.next()) {
+            existe = true;
+        }
+        return existe;
+    }
+    
+    // ********************* Funciones auxiliares ****************************
+    private boolean existeRegistro(Registro r) throws SQLException {
+        String select = "select * from registration where activity='" + r.getActividad() + "' and customer ='"+ r.getCliente() +"'";
+        boolean existe;
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        existe = false;
+        if (rs.next()) {
+            existe = true;
+        }
+        return existe;
+    }
+    
+    // ********************* Funciones auxiliares ****************************
+    private boolean existeAdministrador(Administrador a) throws SQLException {
+        String select = "select * from admin where username='" + a.getNombreUsuario() + "'";
         boolean existe;
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);

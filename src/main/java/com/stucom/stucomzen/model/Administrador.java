@@ -13,4 +13,8 @@ public class Administrador extends Persona{
         super(nombreUsuario, password, null);
     }
     
+    public Administrador(String nombre) {
+        super(nombre);
+    }
+    
 }

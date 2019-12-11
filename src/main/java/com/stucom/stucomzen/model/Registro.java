@@ -18,6 +18,11 @@ public class Registro {
         this.cliente = cliente;
         this.fecha = fecha;
     }
+    
+    public Registro(Actividad actividad, Cliente cliente) {
+        this.actividad = actividad;
+        this.cliente = cliente;
+    }
 
     public Actividad getActividad() {
         return actividad;

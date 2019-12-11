@@ -28,6 +28,10 @@ public class Actividad {
         this.profesor = profesor;
         this.centro = centro;
     }
+    
+    public Actividad(int idActividad){
+        this.idActividad = idActividad;
+    }
 
     public int getIdActividad() {
         return idActividad;
