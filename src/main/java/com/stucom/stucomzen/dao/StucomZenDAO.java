@@ -31,6 +31,21 @@ public class StucomZenDAO {
         ps.executeUpdate();
         ps.close();
     }
+    
+    // ********************* Inserts ****************************
+    public void insertarCliente(Cliente c) throws ExceptionStucomZen, SQLException {
+        if (existeCliente(c)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.profesorExists);
+        }
+        String insert = "insert into teacher values (?, ?, ?, ?)";
+        PreparedStatement ps = conexion.prepareStatement(insert);
+        ps.setString(1, c.getNombreUsuario());
+        ps.setString(2, c.getPassword());
+        ps.setString(3, c.getCiudad().getNombreCiudad());
+        ps.setString(4, c.getNombreCompleto());
+        ps.executeUpdate();
+        ps.close();
+    }
 
     // Función que devuelve un plato a partir del nombre
     public Profesor getProfesorByName(String nombre) throws SQLException, ExceptionStucomZen {
@@ -52,6 +67,40 @@ public class StucomZenDAO {
         rs.close();
         st.close();
         return p;
+    }
+
+    // Función que devuelve un plato a partir del nombre
+    public Cliente getClienteByName(String nombre) throws SQLException, ExceptionStucomZen {
+        Cliente aux = new Cliente(nombre);
+        if (!existeCliente(aux)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+        }
+        String select = "select * from customer where username='" + nombre + "'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        Cliente c = new Cliente();
+        if (rs.next()) {
+            c.setNombreUsuario(nombre);
+            c.setNombreCompleto(rs.getString("fullname"));
+            c.setCiudad(getCiudadByName(rs.getString("city")));
+            c.setPassword(rs.getString("password"));
+        }
+        rs.close();
+        st.close();
+        return c;
+    }
+
+    // ********************* Funciones auxiliares ****************************
+    private boolean existeCliente(Cliente c) throws SQLException {
+        String select = "select * from customer where username='" + c.getNombreUsuario() + "'";
+        boolean existe;
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        existe = false;
+        if (rs.next()) {
+            existe = true;
+        }
+        return existe;
     }
 
     // ********************* Funciones auxiliares ****************************

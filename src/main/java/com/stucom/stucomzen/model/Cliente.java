@@ -18,6 +18,10 @@ public class Cliente extends Persona{
         this.ciudad = ciudad;
     }
 
+    public Cliente(String nombre) {
+        super(nombre);
+    }
+
     public Ciudad getCiudad() {
         return ciudad;
     }
