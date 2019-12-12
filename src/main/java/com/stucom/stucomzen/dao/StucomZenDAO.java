@@ -100,18 +100,18 @@ public class StucomZenDAO {
     }
     
     // Función que devuelve un plato a partir del nombre
-    public Persona getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
+    public String getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
         if (existeProfesor(new Profesor(nombre))) {
-            return getProfesorByName(nombre);
+            return getProfesorByName(nombre).getClass().getSimpleName();
         }
         if (existePropietario(new Propietario(nombre))) {
-            return getProfesorByName(nombre);
+            return getProfesorByName(nombre).getClass().getSimpleName();
         }
         if (existeCliente(new Cliente(nombre))) {
-            return getProfesorByName(nombre);
+            return getProfesorByName(nombre).getClass().getSimpleName();
         }
         if (existeAdministrador(new Administrador(nombre))) {
-            return getAdministradorByName(nombre);
+            return getAdministradorByName(nombre).getClass().getSimpleName();
         }
         throw new ExceptionStucomZen(ExceptionStucomZen.userNotExists);
     }
@@ -142,7 +142,7 @@ public class StucomZenDAO {
     public Cliente getClienteByName(String nombre) throws SQLException, ExceptionStucomZen {
         Cliente aux = new Cliente(nombre);
         if (!existeCliente(aux)) {
-            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+            throw new ExceptionStucomZen(ExceptionStucomZen.clienteNotExists);
         }
         String select = "select * from customer where username='" + nombre + "'";
         Statement st = conexion.createStatement();
@@ -163,7 +163,7 @@ public class StucomZenDAO {
     public Propietario getPropietarioByName(String nombre) throws SQLException, ExceptionStucomZen {
         Propietario aux = new Propietario(nombre);
         if (!existePropietario(aux)) {
-            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+            throw new ExceptionStucomZen(ExceptionStucomZen.propietarioNotExists);
         }
         String select = "select * from owner where username='" + nombre + "'";
         Statement st = conexion.createStatement();
@@ -250,7 +250,7 @@ public class StucomZenDAO {
     public Administrador getAdministradorByName(String nombre) throws SQLException, ExceptionStucomZen {
         Administrador aux = new Administrador(nombre);
         if (!existeAdministrador(aux)) {
-            throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
+            throw new ExceptionStucomZen(ExceptionStucomZen.administradorNotExists);
         }
         String select = "select * from admin where username='" + nombre + "'";
         Statement st = conexion.createStatement();
@@ -325,8 +325,11 @@ public class StucomZenDAO {
     }
     
     // ********************* Funciones auxiliares ****************************
-    public boolean passwordVerifying(String tipoUsuario, String password) throws SQLException {
-        String select = "select * from "+tipoUsuario+" where username='" +password+ "'";
+    public boolean passwordVerifying(String nombre, String password) throws SQLException {
+        String select = "select username, pass from customer where username = '"+nombre+"' and pass='" +password+ "' union "
+                + "select username, pass from owner where username = '"+nombre+"' and pass= '" +password+ "' union "
+                + "select username, pass from teacher where username = '"+nombre+"' and pass= '" +password+ "' union "
+                + "select username, pass from admin where username = '"+nombre+"' and pass= '" +password+ "'";
         boolean existe;
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);

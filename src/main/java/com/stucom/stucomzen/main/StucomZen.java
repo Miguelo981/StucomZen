@@ -12,12 +12,9 @@ import java.util.logging.Logger;
  * @author alu2018240
  */
 public class StucomZen {
-
-    InputAsker inputAsker;
     StucomZenDAO stucomZenDao;
 
     public StucomZen() {
-        inputAsker = new InputAsker();
         stucomZenDao = new StucomZenDAO();
     }
 
@@ -52,7 +49,7 @@ public class StucomZen {
 
     public void menu() throws ExceptionStucomZen, SQLException {
         try {
-            //stucomZenDao.insertarProfesor(new Profesor("mucha", 4, "mike", "mike", "jerardo felix"));
+            stucomZenDao.insertarProfesor(new Profesor("mucha", 4, "mika", "mika", "jerardo felix"));
             Profesor prof = stucomZenDao.getProfesorByName(InputAsker.askString("Dime nombre de profesor"));
             System.out.println(prof.toString());
         } catch (SQLException | ExceptionStucomZen ex) {
@@ -67,7 +64,7 @@ public class StucomZen {
         System.out.println("3.- Propietario.");
         System.out.println("0.- Salir.");
     }
-    
+
     private void registrarUsuario() {
         try {
             int opcion = 0;
@@ -108,22 +105,27 @@ public class StucomZen {
         try {
             String nombreUsuario = InputAsker.askString("Nombre de usuario: ");
             String password = InputAsker.askString("Password: ");
-            //String tipoUsuario
-            Persona usuario = stucomZenDao.getPersonaByName(nombreUsuario);
-            switch (tipoUsuario) {
-                case "Cliente":
-                    stucomZenDao.getClienteByName(nombreUsuario);
-                case "Propietario":
-                    stucomZenDao.getPropietarioByName(nombreUsuario);
-                case "Profesor":
-                    stucomZenDao.getProfesorByName(nombreUsuario);
-                case "Administrador":
-                    stucomZenDao.getAdministradorByName(nombreUsuario);
+            String tipoUsuario = stucomZenDao.getPersonaByName(nombreUsuario);
+            if (stucomZenDao.passwordVerifying(nombreUsuario, password)) {
+                FuncionUsuario usuario = new FuncionUsuario();
+                switch (tipoUsuario) {
+                    case "Cliente":
+                        usuario = new FuncionUsuario(stucomZenDao.getClienteByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        break;
+                    case "Propietario":
+                        usuario = new FuncionUsuario(stucomZenDao.getPropietarioByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        break;
+                    case "Profesor":
+                        usuario = new FuncionUsuario(stucomZenDao.getProfesorByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        break;
+                    case "Administrador":
+                        usuario = new FuncionUsuario(stucomZenDao.getAdministradorByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        break;
+                }
+                usuario.getOpcionesUsuario();
             }
-            stucomZenDao.passwordVerifying(tipoUsuario, "");
         } catch (SQLException | ExceptionStucomZen ex) {
             System.out.println(ex);
         }
-
     }
 }

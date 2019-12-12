@@ -1,5 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `zenstucom` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `zenstucom`;
+SELECT * FROM teacher;
+SELECT * FROM owner;
+
+select username, pass from customer where username = '"+nombre+"' and pass='" +password+ "' union select username, pass from owner where username = '"+nombre+"' and pass= '" +password+ "' union select username, pass from teacher where username = "mika" and pass= "mika" union select username, pass from admin where username = "mika" and pass= "mika";
+
 -- MySQL dump 10.13  Distrib 5.6.41, for Linux (x86_64)
 --
 -- Host: localhost    Database: zenstucom
