@@ -20,8 +20,8 @@ public class Ciudad {
         this.nombreCiudad = nombreCiudad;
     }
     
-    public Ciudad(int idCiudad) {
-        this.idCiudad = idCiudad;
+    public Ciudad(String nombreCiudad) {
+        this.nombreCiudad = nombreCiudad;
     }
 
     public int getIdCiudad() {

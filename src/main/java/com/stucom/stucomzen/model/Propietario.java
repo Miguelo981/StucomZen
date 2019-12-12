@@ -15,8 +15,10 @@ public class Propietario extends Persona{
         this.telefono = telefono;
     }
 
-    public Propietario(String nombreUsuario, String password, String nombreCompleto) {
+    public Propietario(String nombreUsuario, String password, String nombreCompleto, String email, String telefono) {
         super(nombreUsuario, password, nombreCompleto);
+        this.email = email;
+        this.telefono = telefono;
     }
     
     public Propietario(String nombre) {

@@ -1,5 +1,6 @@
-package com.stucom.stucomzen.model;
+package com.stucom.stucomzen.main;
 
+import com.stucom.stucomzen.exceptions.ExceptionStucomZen;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,10 +8,30 @@ import java.util.ArrayList;
 
 /**
  * Class to ask input to user.
- * 
+ *
  * @author mfontana
  */
 public class InputAsker {
+
+    public static String askString(String message, int max) throws ExceptionStucomZen {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String answer = "";
+        do {
+            try {
+                System.out.println(message);
+                answer = br.readLine();
+                if (answer.length() > max) {
+                    throw new ExceptionStucomZen(ExceptionStucomZen.maxStringLength);
+                }
+                if (answer.equals("")) {
+                    System.out.println("You must write something.");
+                }
+            } catch (IOException ex) {
+                System.out.println("Error input / output.");
+            }
+        } while (answer.equals(""));
+        return answer;
+    }
 
     /**
      * Request String
@@ -80,8 +101,8 @@ public class InputAsker {
 
     /**
      * Returns true if the word exists in wordsAccepted.
-     * 
-     * @param word 
+     *
+     * @param word
      * @param wordsAccepted
      * @return boolean
      */
@@ -119,7 +140,7 @@ public class InputAsker {
         } while (error);
         return num;
     }
-    
+
     public static double askDouble(String message) {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         double num = 0;
