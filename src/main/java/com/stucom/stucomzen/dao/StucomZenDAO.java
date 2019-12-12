@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import static javafx.scene.input.KeyCode.T;
 
 /**
  *
@@ -96,6 +97,27 @@ public class StucomZenDAO {
         ps.setString(7, a.getCentro().getNombreCentro());
         ps.executeUpdate();
         ps.close();
+    }
+    
+    // Función que devuelve un plato a partir del nombre
+    public Object <T> getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
+        if (existeProfesor(new Profesor(nombre))) {
+            
+        }
+        String select = "select * from teacher where username='" + nombre + "'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        Profesor p = new Profesor();
+        if (rs.next()) {
+            p.setNombreUsuario(nombre);
+            p.setExperiencia(rs.getString("expertise"));
+            p.setHoras(rs.getInt("hours"));
+            p.setNombreCompleto(rs.getString("fullname"));
+            p.setPassword(rs.getString("pass"));
+        }
+        rs.close();
+        st.close();
+        return p;
     }
 
     // Función que devuelve un plato a partir del nombre
