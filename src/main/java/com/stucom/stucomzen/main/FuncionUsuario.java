@@ -1,13 +1,17 @@
 package com.stucom.stucomzen.main;
 
+import com.stucom.stucomzen.dao.StucomZenDAO;
 import com.stucom.stucomzen.model.*;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Miguelo
  */
 public class FuncionUsuario {
-
+    private StucomZenDAO stucomZenDao;
     private Propietario propietario;
     private Profesor profesor;
     private Cliente cliente;
@@ -99,22 +103,31 @@ public class FuncionUsuario {
     }
 
     void getOpcionesUsuario() {
-        int opcion = 0;
-        do {
-            menuOpcionesBasicas();
-            //getOpcionesPorTipo(this.tipoUsuario);
-            opcion = InputAsker.askInt("Que opcion deseas escoger?", 0, getOpcionesPorTipo(this.tipoUsuario));
-            switch (opcion) {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 0:
-                    break;
-                default:
-                    getFuncionesExtra(this.tipoUsuario, opcion);
-            }
-        } while (opcion != 0);
+        try {
+            int opcion = 0;
+            stucomZenDao = new StucomZenDAO();
+            stucomZenDao.conectar();
+            do {
+                menuOpcionesBasicas();
+                //getOpcionesPorTipo(this.tipoUsuario);
+                opcion = InputAsker.askInt("Que opcion deseas escoger?", 0, getOpcionesPorTipo(this.tipoUsuario));
+                switch (opcion) {
+                    case 1:
+                        break;
+                    case 2:
+                        borrarCuenta();
+                        opcion = 0;
+                        break;
+                    case 0:
+                        break;
+                    default:
+                        getFuncionesExtra(this.tipoUsuario, opcion);
+                }
+            } while (opcion != 0);
+            stucomZenDao.desconectar();
+        } catch (SQLException ex) {
+            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void getFuncionesExtra(String tipo, int opcion) {
@@ -169,6 +182,21 @@ public class FuncionUsuario {
                         break;
                 }
                 break;
+        }
+    }
+
+    private void borrarCuenta() {
+        if (this.tipoUsuario.equals("Administrador")) {
+            //Comprobar si es el ultimo administrador
+        } else {
+            if (InputAsker.askString("Estas seguro? (Si/No)").equalsIgnoreCase("si")) {
+                try {
+                    stucomZenDao.deleteUser(this.usuario.getNombreUsuario(), this.tipoUsuario);
+                    System.out.println("Cuenta eliminada con exito!");
+                } catch (SQLException ex) {
+                    System.out.println("Error al eliminar la cuenta. "+ex);;
+                }
+            }
         }
     }
 }

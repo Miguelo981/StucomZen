@@ -123,6 +123,8 @@ public class StucomZen {
                         break;
                 }
                 usuario.getOpcionesUsuario();
+            } else {
+                throw new ExceptionStucomZen(ExceptionStucomZen.passwordIncorrecta);
             }
         } catch (SQLException | ExceptionStucomZen ex) {
             System.out.println(ex);
