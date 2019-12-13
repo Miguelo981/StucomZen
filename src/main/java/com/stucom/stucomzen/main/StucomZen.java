@@ -110,16 +110,16 @@ public class StucomZen {
                 FuncionUsuario usuario = new FuncionUsuario();
                 switch (tipoUsuario) {
                     case "Cliente":
-                        usuario = new FuncionUsuario(stucomZenDao.getClienteByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getClienteByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getClienteByName(nombreUsuario).getPassword(), stucomZenDao.getClienteByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
                         break;
                     case "Propietario":
-                        usuario = new FuncionUsuario(stucomZenDao.getPropietarioByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getPropietarioByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getPropietarioByName(nombreUsuario).getPassword(), stucomZenDao.getPropietarioByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
                         break;
                     case "Profesor":
-                        usuario = new FuncionUsuario(stucomZenDao.getProfesorByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getProfesorByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getProfesorByName(nombreUsuario).getPassword(), stucomZenDao.getProfesorByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
                         break;
                     case "Administrador":
-                        usuario = new FuncionUsuario(stucomZenDao.getAdministradorByName(nombreUsuario), new Persona(nombreUsuario), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getAdministradorByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getAdministradorByName(nombreUsuario).getPassword(), stucomZenDao.getAdministradorByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
                         break;
                 }
                 usuario.getOpcionesUsuario();

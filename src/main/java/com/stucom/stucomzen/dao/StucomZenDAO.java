@@ -288,7 +288,14 @@ public class StucomZenDAO {
         st.close();
         return r;
     }
-
+    
+    public Boolean updateUser(String query) throws SQLException {
+        Statement st = conexion.createStatement();
+        st.executeUpdate(query);
+        st.close();
+        return true;
+    }
+    
     public Boolean deleteUser(String nombre, String tipo) throws SQLException {
         String select = "";
         switch (tipo) {
@@ -302,7 +309,14 @@ public class StucomZenDAO {
                 select = "delete from teacher where username='" + nombre + "'";
                 break;
             case "Administrador":
-
+                select = "select count(*) from admin";
+                Statement st = conexion.createStatement();
+                ResultSet rs = st.executeQuery(select);
+                if (rs.next()) {
+                    if (rs.getInt("count(*)") > 1) select = "delete from admin where username='" + nombre + "'";
+                } else {
+                    return false;
+                }
                 break;
         }
         /*String select = "delete from customer where username='" + nombre + "' union"
