@@ -47,6 +47,59 @@ public class FuncionUsuario {
         this.usuario = usuario;
         this.tipoUsuario = tipoUsuario;
     }
+    
+    private int tiposUsuario(Object o) {
+        System.out.println("|--Tipo de Usuario--|");
+        System.out.println("1.- Cliente.");
+        System.out.println("2.- Profesor.");
+        System.out.println("3.- Propietario.");
+        if (o.getClass().getSimpleName().equals("Administrador")) {
+            System.out.println("4.- Administrador.");
+            return 4;
+        }
+        System.out.println("0.- Salir.");
+        return 3;
+    }
+    
+    public void registrarUsuario(Object o) {
+        try {
+            int opcion = 0;
+            stucomZenDao = new StucomZenDAO();
+            stucomZenDao.conectar();
+            do {
+                String nombreUsuario = InputAsker.askString("Nombre de usuario: ", 10);
+                String nombreCompleto = InputAsker.askString("Nombre completo: ", 50);
+                String password = InputAsker.askString("Password: ", 10);
+                opcion = InputAsker.askInt("Que clase de usuario desea registrar?", 0, tiposUsuario(o));
+                if (!stucomZenDao.existeNombre(nombreUsuario)) {
+                    switch (opcion) {
+                        case 1:
+                            String ciudad = InputAsker.askString("En que ciudad reside? ", 50);
+                            stucomZenDao.insertarCliente(new Cliente(stucomZenDao.getCiudadByName(ciudad), nombreUsuario, password, nombreCompleto));
+                            break;
+                        case 2:
+                            String experiencia = InputAsker.askString("Experiencia: ", 20);
+                            stucomZenDao.insertarProfesor(new Profesor(experiencia, 0, nombreUsuario, password, nombreCompleto));
+                            break;
+                        case 3:
+                            String email = InputAsker.askString("Email: ", 60);
+                            String telefono = InputAsker.askString("Telefono: ", 9);
+                            stucomZenDao.insertarPropietario(new Propietario(nombreUsuario, password, nombreCompleto, email, telefono));
+                            break;
+                        case 4:
+                            stucomZenDao.insertarAdministrador(new Administrador(nombreUsuario, password));
+                    }
+                    System.out.println("Usuario registrado con exito!");
+                    opcion = 0;
+                } else {
+                    throw new ExceptionStucomZen(ExceptionStucomZen.userExists);
+                }
+            } while (opcion != 0);
+            stucomZenDao.desconectar();
+        } catch (SQLException | ExceptionStucomZen ex) {
+            System.out.println(ex);
+        }
+    }
 
     private String getEnglishUserNameType(String tipo) {
         switch (tipo) {
@@ -191,6 +244,7 @@ public class FuncionUsuario {
                     case 3:
                         break;
                     case 4:
+                        registrarUsuario(administrador);
                         break;
                     case 5:
                         break;
@@ -242,25 +296,49 @@ public class FuncionUsuario {
         return 0;
     }
 
-    private void getFuncionesEditarExtra(String tipo, int opcion) {
+    private void getFuncionesEditarExtra(String tipo, int opcion) throws ExceptionStucomZen, SQLException {
         switch (tipo) {
             case "Cliente":
                 switch (opcion) {
                     case 3:
+                        System.out.println("Ciudad actual: " + this.cliente.getCiudad().getNombreCiudad());
+                        String nombreCiudad = InputAsker.askString("Ciudad: ", 50);
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set ciudad = '" + stucomZenDao.getCiudadByName(nombreCiudad).getIdCiudad() + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                            this.cliente.getCiudad().setNombreCiudad(nombreCiudad);
+                            System.out.println("Ciudad modificado con exito!");
+                        }
                         break;
                 }
                 break;
             case "Propietario":
                 switch (opcion) {
                     case 3:
+                        System.out.println("Email actual: " + this.propietario.getEmail());
+                        String email = InputAsker.askString("Email: ", 60);
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set email = '" + email + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                            this.propietario.setEmail(email);
+                            System.out.println("Email completo modificado con exito!");
+                        }
                         break;
                     case 4:
+                        System.out.println("Telefono actual: " + this.usuario.getNombreCompleto());
+                        String telefono = InputAsker.askString("Telefono: ", 9);
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set phone = '" + telefono + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                            this.propietario.setTelefono(telefono);
+                            System.out.println("Telefono completo modificado con exito!");
+                        }
                         break;
                 }
                 break;
             case "Profesor":
                 switch (opcion) {
                     case 3:
+                        System.out.println("Experiencia actual: " + this.profesor.getExperiencia());
+                        String experiencia = InputAsker.askString("Experiencia: ", 20);
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set expertise= '" + experiencia + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                            this.profesor.setExperiencia(experiencia);
+                            System.out.println("Experiencia completo modificado con exito!");
+                        }
                         break;
                 }
                 break;
@@ -296,7 +374,7 @@ public class FuncionUsuario {
                         getFuncionesEditarExtra(this.tipoUsuario, opcion);
                 }
             } catch (SQLException | ExceptionStucomZen ex) {
-                System.out.println("Error al modificar campo. "+ ex);
+                System.out.println("Error al modificar campo. " + ex);
             }
         } while (opcion != 0);
     }

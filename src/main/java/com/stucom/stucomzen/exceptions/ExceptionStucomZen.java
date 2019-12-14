@@ -14,6 +14,7 @@ public class ExceptionStucomZen extends Exception {
     public static final String clienteNotExists = "ERROR: No existe ningun cliente con ese nombre";
     public static final String propietarioNotExists = "ERROR: No existe ningun propietario con ese nombre";
     public static final String administradorNotExists = "ERROR: No existe ningun administrador con ese nombre";
+    public static String adminExists = "ERROR: Ya existe un administrador con ese nombre";
     
     
     

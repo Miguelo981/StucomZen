@@ -1,7 +1,6 @@
 package com.stucom.stucomzen.dao;
 
 import com.stucom.stucomzen.exceptions.ExceptionStucomZen;
-import com.stucom.stucomzen.main.FuncionUsuario;
 import com.stucom.stucomzen.model.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,9 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static javafx.scene.input.KeyCode.T;
 
 /**
  *
@@ -65,6 +61,19 @@ public class StucomZenDAO {
         ps.setString(3, p.getNombreCompleto());
         ps.setString(4, p.getEmail());
         ps.setString(5, p.getTelefono());
+        ps.executeUpdate();
+        ps.close();
+    }
+    
+    // ********************* Inserts ****************************
+    public void insertarAdministrador(Administrador a) throws ExceptionStucomZen, SQLException {
+        if (existeAdministrador(a)) {
+            throw new ExceptionStucomZen(ExceptionStucomZen.adminExists);
+        }
+        String insert = "insert into admin values (?, ?)";
+        PreparedStatement ps = conexion.prepareStatement(insert);
+        ps.setString(1, a.getNombreUsuario());
+        ps.setString(2, a.getPassword());
         ps.executeUpdate();
         ps.close();
     }
