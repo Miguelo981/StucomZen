@@ -12,7 +12,14 @@ import java.util.ArrayList;
  * @author mfontana
  */
 public class InputAsker {
-
+    
+    /**
+     * 
+     * @param message
+     * @param max
+     * @return
+     * @throws ExceptionStucomZen 
+     */
     public static String askString(String message, int max) throws ExceptionStucomZen {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String answer = "";
@@ -31,6 +38,60 @@ public class InputAsker {
             }
         } while (answer.equals(""));
         return answer;
+    }
+    
+    public static int askInt(String message, int max) throws ExceptionStucomZen {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int num = 0;
+        boolean error = false;
+        do {
+            try {
+                System.out.println(message);
+                num = Integer.parseInt(br.readLine());
+                if (String.valueOf(num).length() <= 11) {
+                    error = false;
+                } else {
+                    throw new ExceptionStucomZen(ExceptionStucomZen.maxIntLength);
+                }
+            } catch (IOException ex) {
+                System.out.println("Error input / output.");
+                error = true;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please, write integer number.");
+                error = true;
+            }
+        } while (error);
+        return num;
+    }
+    
+    /**
+     * 
+     * @param message
+     * @param max
+     * @return 
+     */
+    public static double askDouble(String message, int max) throws ExceptionStucomZen {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        double num = 0;
+        boolean error;
+        do {
+            try {
+                System.out.println(message);
+                num = Double.parseDouble(br.readLine());
+                if (String.valueOf(num).length() <= 4) {
+                    error = false;
+                } else {
+                    throw new ExceptionStucomZen(ExceptionStucomZen.maxIntLength);
+                }
+            } catch (IOException ex) {
+                System.out.println("Error input / output.");
+                error = true;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please, write integer number.");
+                error = true;
+            }
+        } while (error);
+        return num;
     }
 
     /**
@@ -141,6 +202,11 @@ public class InputAsker {
         return num;
     }
 
+    /**
+     * 
+     * @param message
+     * @return 
+     */
     public static double askDouble(String message) {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         double num = 0;

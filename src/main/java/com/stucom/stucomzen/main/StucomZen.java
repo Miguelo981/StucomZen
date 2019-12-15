@@ -49,20 +49,12 @@ public class StucomZen {
 
     public void menu() throws ExceptionStucomZen, SQLException {
         try {
-            stucomZenDao.insertarProfesor(new Profesor("mucha", 4, "mika", "mika", "jerardo felix"));
+            //stucomZenDao.insertarProfesor(new Profesor("mucha", 4, "mika", "mika", "jerardo felix"));
             Profesor prof = stucomZenDao.getProfesorByName(InputAsker.askString("Dime nombre de profesor"));
             System.out.println(prof.toString());
         } catch (SQLException | ExceptionStucomZen ex) {
             Logger.getLogger(StucomZen.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    private void tiposUsuario() {
-        System.out.println("|--Tipo de Usuario--|");
-        System.out.println("1.- Cliente.");
-        System.out.println("2.- Profesor.");
-        System.out.println("3.- Propietario.");
-        System.out.println("0.- Salir.");
     }
 
     private void registrarUsuario() {

@@ -10,7 +10,7 @@ package com.stucom.stucomzen.model;
  * @author Miguelo
  */
 public class Actividad {
-    int idActividad, lugares;
+    int idActividad, plazas;
     TipoActividad nombreActividad;
     double precio;
     int horas;
@@ -19,9 +19,9 @@ public class Actividad {
     
     public Actividad(){}
     
-    public Actividad(int idActividad, int lugares, TipoActividad nombreActividad, double precio, int horas, Profesor profesor, Centro centro) {
+    public Actividad(int idActividad, int plazas, TipoActividad nombreActividad, double precio, int horas, Profesor profesor, Centro centro) {
         this.idActividad = idActividad;
-        this.lugares = lugares;
+        this.plazas = plazas;
         this.nombreActividad = nombreActividad;
         this.precio = precio;
         this.horas = horas;
@@ -41,12 +41,12 @@ public class Actividad {
         this.idActividad = idActividad;
     }
 
-    public int getLugares() {
-        return lugares;
+    public int getPlazas() {
+        return plazas;
     }
 
-    public void setLugares(int lugares) {
-        this.lugares = lugares;
+    public void setPlazas(int plazas) {
+        this.plazas = plazas;
     }
 
     public TipoActividad getNombreActividad() {

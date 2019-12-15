@@ -74,7 +74,7 @@ public class FuncionUsuario {
                             break;
                         case 2:
                             String experiencia = InputAsker.askString("Experiencia: ", 20);
-                            stucomZenDao.insertarProfesor(new Profesor(experiencia, 0, nombreUsuario, password, nombreCompleto));
+                            stucomZenDao.insertarProfesor(new Profesor(TipoActividad.valueOf(experiencia.toUpperCase()), 0, nombreUsuario, password, nombreCompleto));
                             break;
                         case 3:
                             String email = InputAsker.askString("Email: ", 60);
@@ -213,14 +213,19 @@ public class FuncionUsuario {
             case "Propietario":
                 switch (opcion) {
                     case 3:
+                        crearCentro();
                         break;
                     case 4:
+                        crearActividad();
                         break;
                     case 5:
+                        borrarActividad();
                         break;
                     case 6:
+                        verPlazasDisponibles();
                         break;
                     case 7:
+                        cuotaTotal();
                         break;
                 }
                 break;
@@ -242,13 +247,14 @@ public class FuncionUsuario {
                     case 4:
                         registrarUsuario(administrador);
                         break;
-                    case 5: {
-                        getAllUsuarios();
-                    }
-                    break;
+                    case 5:
+                        borrarUsuario();
+                        break;
                     case 6:
+                        getAllUsuarios();
                         break;
                     case 7:
+                        getAllActividades();
                         break;
                 }
                 break;
@@ -336,7 +342,7 @@ public class FuncionUsuario {
                         System.out.println("Experiencia actual: " + this.profesor.getExperiencia());
                         String experiencia = InputAsker.askString("Experiencia: ", 20);
                         if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.usuario.getTipo()) + " set expertise= '" + experiencia + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
-                            this.profesor.setExperiencia(experiencia);
+                            this.profesor.setExperiencia(TipoActividad.valueOf(experiencia.toUpperCase()));
                             System.out.println("Experiencia completo modificado con exito!");
                         }
                         break;
@@ -404,25 +410,33 @@ public class FuncionUsuario {
             System.out.println(ex);
         }
     }
-    
+
     private void getAllUsuarios() {
         try {
             System.out.println("--Profesores--");
             for (int i = 0; i < stucomZenDao.getAllProfesores().size(); i++) {
-                System.out.println("- "+stucomZenDao.getAllProfesores().get(i).toString());
+                System.out.println("- " + stucomZenDao.getAllProfesores().get(i).toString());
             }
             System.out.println("--Clientes--");
             for (int i = 0; i < stucomZenDao.getAllClientes().size(); i++) {
-                System.out.println("- "+stucomZenDao.getAllClientes().get(i).toString());
+                System.out.println("- " + stucomZenDao.getAllClientes().get(i).toString());
             }
             System.out.println("--Propietarios--");
             for (int i = 0; i < stucomZenDao.getAllPropietarios().size(); i++) {
-                System.out.println("- "+stucomZenDao.getAllPropietarios().get(i).toString());
+                System.out.println("- " + stucomZenDao.getAllPropietarios().get(i).toString());
             }
             System.out.println("--Administradores--");
             for (int i = 0; i < stucomZenDao.getAllAdministradores(this.usuario.getTipo()).size(); i++) {
-                System.out.println("- "+stucomZenDao.getAllAdministradores(this.usuario.getTipo()).get(i).toString());
+                System.out.println("- " + stucomZenDao.getAllAdministradores(this.usuario.getTipo()).get(i).toString());
             }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void borrarUsuario() {
+        try {
+            getAllUsuarios();
             String nombreUsuario = InputAsker.askString("Introduce el nombre de usuario que deseas borrar: ", 50);
             if (stucomZenDao.existeNombre(nombreUsuario) && stucomZenDao.getPersonaByName(nombreUsuario).getNombreUsuario().equals(this.usuario.getNombreUsuario()) != true) {
                 if (InputAsker.askString("Estas seguro? (Si/No)").equalsIgnoreCase("si")) {
@@ -432,8 +446,92 @@ public class FuncionUsuario {
             } else {
                 System.out.println("Ese usuario no existe o es el usuario actual.");
             }
+        } catch (ExceptionStucomZen | SQLException ex) {
+            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void getAllActividades() {
+        ;
+    }
+
+    private void crearCentro() {
+        int opcion = 0;
+        do {
+            try {
+                String nombreCentro = InputAsker.askString("Nombre del centro: ", 80);
+                for (int i = 0; i < stucomZenDao.getAllCiudades().size(); i++) {
+                    System.out.println((i + 1) + ".- " + stucomZenDao.getAllCiudades().get(i).toString());
+                }
+                int i = InputAsker.askInt("Id de la ciudad: ", 1, stucomZenDao.getAllCiudades().size());
+                //String nombreCiudad = InputAsker.askString("Nombre ciudad: ", 50);
+                Ciudad ciudad = stucomZenDao.getCiudadByName(stucomZenDao.getAllCiudades().get(i - 1).getNombreCiudad());
+                int habitaciones = InputAsker.askInt("Nº habitaciones: ", 11);
+                double precio = InputAsker.askDouble("Precio: ", 2);
+                stucomZenDao.insertarCentro(new Centro(nombreCentro, ciudad, habitaciones, precio, this.propietario));
+                System.out.println("Centro registrado con exito!");
+            } catch (SQLException | ExceptionStucomZen ex) {
+                System.out.println(ex);;
+            }
+        } while (opcion != 0);
+    }
+
+    private boolean checkActividad(String actividad) { //SOLUCION, ARRAYLIST DE STRINGS Y COMPARACION POR INDICE
+        /*for (int i = 0; i < TipoActividad.values().length; i++) {
+         if (TipoActividad.valueOf(actividad).equals(actividad.toUpperCase())) {
+         return true;
+         }
+         }*/
+        for (TipoActividad a : TipoActividad.values()) {
+            if (a.name().equals(actividad.toUpperCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void crearActividad() {
+        try {
+            if (stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).size() > 0) {
+                for (int i = 0; i < stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).size(); i++) {
+                    System.out.println((i + 1) + ".- " + stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(i).toString());
+                }
+                int indiceCentro = InputAsker.askInt("Id de la Centro: ", 1, stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).size());
+                int horasSemanales = InputAsker.askInt("Numero de horas semanales: ", 11);
+                double precio = InputAsker.askDouble("Precio de la actividad: ", 4);
+                int numeroPlazas = InputAsker.askInt("Numero de plazas maximas: ", 1, 1000000000);
+                String actividad = InputAsker.askString("Introduce el nombre de la actividad: ");
+                if (checkActividad(actividad)) {
+                    TipoActividad tipo = TipoActividad.valueOf(actividad.toUpperCase());
+                    if (stucomZenDao.getAllProfesoresByTipoActividad(tipo).size() > 0) {
+                        for (int i = 0; i < stucomZenDao.getAllProfesoresByTipoActividad(tipo).size(); i++) {
+                            System.out.println((i + 1) + ".- " + stucomZenDao.getAllProfesoresByTipoActividad(tipo).get(i).toString());
+                        }
+                        int indiceProfesor = InputAsker.askInt("Id del profesor: ", 1, stucomZenDao.getAllProfesoresByTipoActividad(tipo).size());
+                        //Comprobar horas y controlar el indice autoincrement de los centros
+                        stucomZenDao.insertarActividad(new Actividad(indiceCentro, numeroPlazas, tipo, precio, horasSemanales, stucomZenDao.getAllProfesoresByTipoActividad(tipo).get(indiceProfesor-1), stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(indiceCentro-1)));
+                        System.out.println("Actividad registrada con exito!"); 
+                    } else {
+                        System.out.println("No hay profesores disponibles para esta actividad.");
+                    }
+                } else {
+                    System.out.println("No existe ninguna activdad con ese nombre.");
+                }
+            }
         } catch (SQLException | ExceptionStucomZen ex) {
             Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void borrarActividad() {
+
+    }
+
+    private void verPlazasDisponibles() {
+
+    }
+
+    private void cuotaTotal() {
+
     }
 }

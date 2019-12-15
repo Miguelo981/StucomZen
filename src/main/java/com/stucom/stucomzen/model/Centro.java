@@ -64,4 +64,9 @@ public class Centro {
     public void setPropietario(Propietario propietario) {
         this.propietario = propietario;
     }
+
+    @Override
+    public String toString() {
+        return "Nombre centro: " + this.nombreCentro + ", Ciudad: " + this.ciudad + ", Nº Habitaciones: " + this.habitaciones + ", Precio: " + this.precio;
+    }
 }

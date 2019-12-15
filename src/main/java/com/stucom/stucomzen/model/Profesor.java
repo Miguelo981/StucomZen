@@ -5,7 +5,7 @@ package com.stucom.stucomzen.model;
  * @author Miguelo
  */
 public class Profesor extends Persona{
-    String experiencia;
+    TipoActividad experiencia;
     int horas;
     
     public Profesor(){}
@@ -14,22 +14,22 @@ public class Profesor extends Persona{
         super(nombre);
     }
     
-    public Profesor(String experiencia, int horas) {
+    public Profesor(TipoActividad experiencia, int horas) {
         this.experiencia = experiencia;
         this.horas = horas;
     }
 
-    public Profesor(String experiencia, int horas, String nombreUsuario, String password, String nombreCompleto) {
+    public Profesor(TipoActividad experiencia, int horas, String nombreUsuario, String password, String nombreCompleto) {
         super(nombreUsuario, password, nombreCompleto);
         this.experiencia = experiencia;
         this.horas = horas;
     }
 
-    public String getExperiencia() {
+    public TipoActividad getExperiencia() {
         return experiencia;
     }
 
-    public void setExperiencia(String experiencia) {
+    public void setExperiencia(TipoActividad experiencia) {
         this.experiencia = experiencia;
     }
 
@@ -43,6 +43,6 @@ public class Profesor extends Persona{
 
     @Override
     public String toString() {
-        return super.toString();
+        return super.toString()+" - Experiencia: "+this.getExperiencia()+", Horas: "+this.getHoras();
     }
 }

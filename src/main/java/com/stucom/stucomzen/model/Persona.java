@@ -61,6 +61,6 @@ public class Persona {
 
     @Override
     public String toString() {
-        return "Nombre usuario: " + this.nombreUsuario;
+        return "Nombre usuario: " + this.nombreUsuario+ ", Nombre completo: "+this.getNombreUsuario();
     }  
 }

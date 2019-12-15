@@ -23,6 +23,10 @@ public class Ciudad {
     public Ciudad(String nombreCiudad) {
         this.nombreCiudad = nombreCiudad;
     }
+    
+    public Ciudad(int id) {
+        this.idCiudad = id;
+    }
 
     public int getIdCiudad() {
         return idCiudad;
@@ -39,5 +43,9 @@ public class Ciudad {
     public void setNombreCiudad(String nombreCiudad) {
         this.nombreCiudad = nombreCiudad;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Ciudad: "+ this.nombreCiudad;
+    }
 }
