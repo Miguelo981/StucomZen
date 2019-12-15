@@ -16,5 +16,10 @@ public class Administrador extends Persona{
     public Administrador(String nombre) {
         super(nombre);
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
     
 }

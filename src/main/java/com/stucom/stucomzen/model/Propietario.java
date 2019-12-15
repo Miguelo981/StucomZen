@@ -43,6 +43,6 @@ public class Propietario extends Persona{
 
     @Override
     public String toString() {
-        return "Propietario{" + "email=" + email + ", telefono=" + telefono + '}';
+        return super.toString();
     }
 }

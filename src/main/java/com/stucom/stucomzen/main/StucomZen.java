@@ -74,21 +74,21 @@ public class StucomZen {
         try {
             String nombreUsuario = InputAsker.askString("Nombre de usuario: ");
             String password = InputAsker.askString("Password: ");
-            String tipoUsuario = stucomZenDao.getPersonaByName(nombreUsuario);
+            Persona persona = stucomZenDao.getPersonaByName(nombreUsuario);
             if (stucomZenDao.passwordVerifying(nombreUsuario, password)) {
                 FuncionUsuario usuario = new FuncionUsuario();
-                switch (tipoUsuario) {
+                switch (persona.getTipo()) {
                     case "Cliente":
-                        usuario = new FuncionUsuario(stucomZenDao.getClienteByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getClienteByName(nombreUsuario).getPassword(), stucomZenDao.getClienteByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getClienteByName(nombreUsuario), persona);
                         break;
                     case "Propietario":
-                        usuario = new FuncionUsuario(stucomZenDao.getPropietarioByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getPropietarioByName(nombreUsuario).getPassword(), stucomZenDao.getPropietarioByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getPropietarioByName(nombreUsuario), persona);
                         break;
                     case "Profesor":
-                        usuario = new FuncionUsuario(stucomZenDao.getProfesorByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getProfesorByName(nombreUsuario).getPassword(), stucomZenDao.getProfesorByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getProfesorByName(nombreUsuario), persona);
                         break;
                     case "Administrador":
-                        usuario = new FuncionUsuario(stucomZenDao.getAdministradorByName(nombreUsuario), new Persona(nombreUsuario, stucomZenDao.getAdministradorByName(nombreUsuario).getPassword(), stucomZenDao.getAdministradorByName(nombreUsuario).getNombreCompleto()), tipoUsuario);
+                        usuario = new FuncionUsuario(stucomZenDao.getAdministradorByName(nombreUsuario), persona);
                         break;
                 }
                 usuario.getOpcionesUsuario();

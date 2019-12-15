@@ -19,35 +19,30 @@ public class FuncionUsuario {
     private Cliente cliente;
     private Administrador administrador;
     private Persona usuario;
-    private String tipoUsuario;
 
     public FuncionUsuario() {
     }
 
-    public FuncionUsuario(Propietario propietario, Persona usuario, String tipoUsuario) {
+    public FuncionUsuario(Propietario propietario, Persona usuario) {
         this.propietario = propietario;
         this.usuario = usuario;
-        this.tipoUsuario = tipoUsuario;
     }
 
-    public FuncionUsuario(Profesor profesor, Persona usuario, String tipoUsuario) {
+    public FuncionUsuario(Profesor profesor, Persona usuario) {
         this.profesor = profesor;
         this.usuario = usuario;
-        this.tipoUsuario = tipoUsuario;
     }
 
-    public FuncionUsuario(Cliente cliente, Persona usuario, String tipoUsuario) {
+    public FuncionUsuario(Cliente cliente, Persona usuario) {
         this.cliente = cliente;
         this.usuario = usuario;
-        this.tipoUsuario = tipoUsuario;
     }
 
-    public FuncionUsuario(Administrador administrador, Persona usuario, String tipoUsuario) {
+    public FuncionUsuario(Administrador administrador, Persona usuario) {
         this.administrador = administrador;
         this.usuario = usuario;
-        this.tipoUsuario = tipoUsuario;
     }
-    
+
     private int tiposUsuario(Object o) {
         System.out.println("|--Tipo de Usuario--|");
         System.out.println("1.- Cliente.");
@@ -60,7 +55,7 @@ public class FuncionUsuario {
         System.out.println("0.- Salir.");
         return 3;
     }
-    
+
     public void registrarUsuario(Object o) {
         try {
             int opcion = 0;
@@ -180,7 +175,7 @@ public class FuncionUsuario {
             do {
                 menuOpcionesBasicas();
                 //getOpcionesPorTipo(this.tipoUsuario);
-                opcion = InputAsker.askInt("Que opcion deseas escoger?", 0, getOpcionesPorTipo(this.tipoUsuario));
+                opcion = InputAsker.askInt("Que opcion deseas escoger?", 0, getOpcionesPorTipo(this.usuario.getTipo()));
                 switch (opcion) {
                     case 1:
                         editarCuenta();
@@ -192,7 +187,7 @@ public class FuncionUsuario {
                     case 0:
                         break;
                     default:
-                        getFuncionesExtra(this.tipoUsuario, opcion);
+                        getFuncionesExtra(this.usuario.getTipo(), opcion);
                 }
             } while (opcion != 0);
             stucomZenDao.desconectar();
@@ -242,12 +237,15 @@ public class FuncionUsuario {
             case "Administrador":
                 switch (opcion) {
                     case 3:
+                        registrarCiudad();
                         break;
                     case 4:
                         registrarUsuario(administrador);
                         break;
-                    case 5:
-                        break;
+                    case 5: {
+                        getAllUsuarios();
+                    }
+                    break;
                     case 6:
                         break;
                     case 7:
@@ -259,24 +257,26 @@ public class FuncionUsuario {
 
     private void menuOpcionesEditarBasicas() {
         System.out.println("|----Editar: " + usuario.getNombreUsuario() + "----|");
-        System.out.println("1.- Cambiar nombre completo.");
+        if (!this.usuario.getTipo().equals("Administrador")) {
+            System.out.println("1.- Cambiar nombre completo.");
+        }
         System.out.println("2.- Cambiar password.");
     }
 
     private void menuOpcionesEditarProfesor() {
         System.out.println("3.- Experiencia.");
-        System.out.println("0.- Cerrar sesion.");
+        System.out.println("0.- Salir.");
     }
 
     private void menuOpcionesEditarPropietario() {
         System.out.println("3.- Email.");
         System.out.println("4.- Telefono.");
-        System.out.println("0.- Cerrar sesion.");
+        System.out.println("0.- Salir.");
     }
 
     private void menuOpcionesEditarCliente() {
         System.out.println("3.- Ciudad.");
-        System.out.println("0.- Cerrar sesion.");
+        System.out.println("0.- Salir.");
     }
 
     private int getOpcionesEditarPorTipo(String tipo) {
@@ -303,7 +303,7 @@ public class FuncionUsuario {
                     case 3:
                         System.out.println("Ciudad actual: " + this.cliente.getCiudad().getNombreCiudad());
                         String nombreCiudad = InputAsker.askString("Ciudad: ", 50);
-                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set ciudad = '" + stucomZenDao.getCiudadByName(nombreCiudad).getIdCiudad() + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.usuario.getTipo()) + " set ciudad = '" + stucomZenDao.getCiudadByName(nombreCiudad).getIdCiudad() + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
                             this.cliente.getCiudad().setNombreCiudad(nombreCiudad);
                             System.out.println("Ciudad modificado con exito!");
                         }
@@ -315,15 +315,15 @@ public class FuncionUsuario {
                     case 3:
                         System.out.println("Email actual: " + this.propietario.getEmail());
                         String email = InputAsker.askString("Email: ", 60);
-                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set email = '" + email + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.usuario.getTipo()) + " set email = '" + email + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
                             this.propietario.setEmail(email);
                             System.out.println("Email completo modificado con exito!");
                         }
                         break;
                     case 4:
-                        System.out.println("Telefono actual: " + this.usuario.getNombreCompleto());
+                        System.out.println("Telefono actual: " + this.propietario.getTelefono());
                         String telefono = InputAsker.askString("Telefono: ", 9);
-                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set phone = '" + telefono + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.usuario.getTipo()) + " set phone = '" + telefono + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
                             this.propietario.setTelefono(telefono);
                             System.out.println("Telefono completo modificado con exito!");
                         }
@@ -335,7 +335,7 @@ public class FuncionUsuario {
                     case 3:
                         System.out.println("Experiencia actual: " + this.profesor.getExperiencia());
                         String experiencia = InputAsker.askString("Experiencia: ", 20);
-                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set expertise= '" + experiencia + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.usuario.getTipo()) + " set expertise= '" + experiencia + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
                             this.profesor.setExperiencia(experiencia);
                             System.out.println("Experiencia completo modificado con exito!");
                         }
@@ -350,20 +350,22 @@ public class FuncionUsuario {
         do {
             try {
                 menuOpcionesEditarBasicas();
-                opcion = InputAsker.askInt("Que caracteristica deseas editar?", 0, getOpcionesEditarPorTipo(this.tipoUsuario));
+                opcion = InputAsker.askInt("Que caracteristica deseas editar?", 0, getOpcionesEditarPorTipo(this.usuario.getTipo()));
                 switch (opcion) {
                     case 1:
-                        System.out.println("Nombre completo actual: " + this.usuario.getNombreCompleto());
-                        String nombreCompleto = InputAsker.askString("Nombre completo: ", 50);
-                        if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set fullname = '" + nombreCompleto + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
-                            this.usuario.setNombreCompleto(nombreCompleto);
-                            System.out.println("Nombre completo modificado con exito!");
+                        if (!this.usuario.getTipo().equals("Administrador")) {
+                            System.out.println("Nombre completo actual: " + this.usuario.getNombreCompleto());
+                            String nombreCompleto = InputAsker.askString("Nombre completo: ", 50);
+                            if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.usuario.getTipo()) + " set fullname = '" + nombreCompleto + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                                this.usuario.setNombreCompleto(nombreCompleto);
+                                System.out.println("Nombre completo modificado con exito!");
+                            }
                         }
                         break;
                     case 2:
                         String password = InputAsker.askString("Password: ", 10);
                         if (InputAsker.askString("Estas seguro? (Si/No)").equalsIgnoreCase("si")) {
-                            if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.tipoUsuario) + " set pass = '" + password + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
+                            if (stucomZenDao.updateUser("update " + getEnglishUserNameType(this.usuario.getTipo()) + " set pass = '" + password + "' where username= '" + this.usuario.getNombreCompleto() + "'")) {
                                 System.out.println("Password completo modificado con exito!");
                             }
                         }
@@ -371,7 +373,7 @@ public class FuncionUsuario {
                     case 0:
                         break;
                     default:
-                        getFuncionesEditarExtra(this.tipoUsuario, opcion);
+                        getFuncionesEditarExtra(this.usuario.getTipo(), opcion);
                 }
             } catch (SQLException | ExceptionStucomZen ex) {
                 System.out.println("Error al modificar campo. " + ex);
@@ -382,15 +384,56 @@ public class FuncionUsuario {
     private void borrarCuenta() {
         if (InputAsker.askString("Estas seguro? (Si/No)").equalsIgnoreCase("si")) {
             try {
-                stucomZenDao.deleteUser(this.usuario.getNombreUsuario(), this.tipoUsuario);
+                stucomZenDao.deleteUser(this.usuario.getNombreUsuario(), this.usuario.getTipo());
                 System.out.println("Cuenta eliminada con exito!");
             } catch (SQLException ex) {
-                if (this.tipoUsuario.equals("Administrador")) {
+                if (this.usuario.getTipo().equals("Administrador")) {
                     System.out.println("Eres el unico administrador, no puedes eliminarte");
                 } else {
                     System.out.println("Error al eliminar la cuenta. ");
                 }
             }
+        }
+    }
+
+    private void registrarCiudad() {
+        try {
+            stucomZenDao.insertarCiudad(InputAsker.askString("Nombre de la ciudad: ", 50));
+            System.out.println("Ciudad registrada con exito!");
+        } catch (ExceptionStucomZen | SQLException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    private void getAllUsuarios() {
+        try {
+            System.out.println("--Profesores--");
+            for (int i = 0; i < stucomZenDao.getAllProfesores().size(); i++) {
+                System.out.println("- "+stucomZenDao.getAllProfesores().get(i).toString());
+            }
+            System.out.println("--Clientes--");
+            for (int i = 0; i < stucomZenDao.getAllClientes().size(); i++) {
+                System.out.println("- "+stucomZenDao.getAllClientes().get(i).toString());
+            }
+            System.out.println("--Propietarios--");
+            for (int i = 0; i < stucomZenDao.getAllPropietarios().size(); i++) {
+                System.out.println("- "+stucomZenDao.getAllPropietarios().get(i).toString());
+            }
+            System.out.println("--Administradores--");
+            for (int i = 0; i < stucomZenDao.getAllAdministradores(this.usuario.getTipo()).size(); i++) {
+                System.out.println("- "+stucomZenDao.getAllAdministradores(this.usuario.getTipo()).get(i).toString());
+            }
+            String nombreUsuario = InputAsker.askString("Introduce el nombre de usuario que deseas borrar: ", 50);
+            if (stucomZenDao.existeNombre(nombreUsuario) && stucomZenDao.getPersonaByName(nombreUsuario).getNombreUsuario().equals(this.usuario.getNombreUsuario()) != true) {
+                if (InputAsker.askString("Estas seguro? (Si/No)").equalsIgnoreCase("si")) {
+                    stucomZenDao.deleteUser(stucomZenDao.getPersonaByName(nombreUsuario).getNombreUsuario(), stucomZenDao.getPersonaByName(nombreUsuario).getTipo());
+                    System.out.println("Usuario borrado con exito!");
+                }
+            } else {
+                System.out.println("Ese usuario no existe o es el usuario actual.");
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

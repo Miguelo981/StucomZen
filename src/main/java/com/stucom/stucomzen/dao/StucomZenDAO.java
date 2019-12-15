@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 /**
  *
@@ -64,7 +65,7 @@ public class StucomZenDAO {
         ps.executeUpdate();
         ps.close();
     }
-    
+
     // ********************* Inserts ****************************
     public void insertarAdministrador(Administrador a) throws ExceptionStucomZen, SQLException {
         if (existeAdministrador(a)) {
@@ -112,8 +113,108 @@ public class StucomZenDAO {
         ps.close();
     }
 
+    // ********************* Inserts ****************************
+    public void insertarCiudad(String nombreCiudad) throws SQLException { //TODO ARREGLAR EL AUTOINCREMENT
+        String insert = "insert into city values (?, ?)";
+        PreparedStatement ps = conexion.prepareStatement(insert);
+        ps.setInt(1, 1);
+        ps.setString(2, nombreCiudad);
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    public ArrayList<Profesor> getAllProfesores() throws SQLException {
+        String select = "select * from teacher";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Profesor> profesores = new ArrayList<>();
+        while (rs.next()) {
+            Profesor p = new Profesor();
+            p.setNombreUsuario(rs.getString("username"));
+            p.setExperiencia(rs.getString("expertise"));
+            p.setHoras(rs.getInt("hours"));
+            p.setNombreCompleto(rs.getString("fullname"));
+            p.setPassword(rs.getString("pass"));
+            profesores.add(p);
+        }
+        rs.close();
+        st.close();
+        return profesores;
+    }
+
+    public ArrayList<Cliente> getAllClientes() throws SQLException, ExceptionStucomZen {
+        String select = "select * from customer";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Cliente> clientes = new ArrayList<>();
+        while (rs.next()) {
+            Cliente c = new Cliente();
+            c.setNombreUsuario(rs.getString("username"));
+            c.setNombreCompleto(rs.getString("fullname"));
+            c.setCiudad(getCiudadByName(rs.getString("city")));
+            c.setPassword(rs.getString("pass"));
+            clientes.add(c);
+        }
+        rs.close();
+        st.close();
+        return clientes;
+    }
+
+    public ArrayList<Propietario> getAllPropietarios() throws SQLException, ExceptionStucomZen {
+        String select = "select * from owner";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Propietario> propietarios = new ArrayList<>();
+        while (rs.next()) {
+            Propietario p = new Propietario();
+            p.setNombreUsuario(rs.getString("username"));
+            p.setEmail(rs.getString("email"));
+            p.setTelefono(rs.getString("phone"));
+            p.setNombreCompleto(rs.getString("fullname"));
+            p.setPassword(rs.getString("pass"));
+            propietarios.add(p);
+        }
+        rs.close();
+        st.close();
+        return propietarios;
+    }
+
+    public ArrayList<Administrador> getAllAdministradores(String name) throws SQLException, ExceptionStucomZen {
+        String select = "select * from admin where username != '" + name + "'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Administrador> administradores = new ArrayList<>();
+        while (rs.next()) {
+            Administrador a = new Administrador();
+            a.setNombreUsuario(rs.getString("username"));
+            a.setPassword(rs.getString("pass"));
+            administradores.add(a);
+        }
+        rs.close();
+        st.close();
+        return administradores;
+    }
+
+    public Persona getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
+        if (existeNombre(nombre)) {
+            if (existeProfesor(new Profesor(nombre))) {
+                return new Persona(getProfesorByName(nombre).getNombreUsuario(), getProfesorByName(nombre).getPassword(), getProfesorByName(nombre).getNombreCompleto(), getProfesorByName(nombre).getClass().getSimpleName());
+            }
+            if (existePropietario(new Propietario(nombre))) {
+                return new Persona(getPropietarioByName(nombre).getNombreUsuario(), getPropietarioByName(nombre).getPassword(), getPropietarioByName(nombre).getNombreCompleto(), getPropietarioByName(nombre).getClass().getSimpleName());
+            }
+            if (existeCliente(new Cliente(nombre))) {
+                return new Persona(getClienteByName(nombre).getNombreUsuario(), getClienteByName(nombre).getPassword(), getClienteByName(nombre).getNombreCompleto(), getClienteByName(nombre).getClass().getSimpleName());
+            }
+            if (existeAdministrador(new Administrador(nombre))) {
+                return new Persona(getAdministradorByName(nombre).getNombreUsuario(), getAdministradorByName(nombre).getPassword(), getAdministradorByName(nombre).getNombreCompleto(), getAdministradorByName(nombre).getClass().getSimpleName());
+            }
+        }
+        throw new ExceptionStucomZen(ExceptionStucomZen.userNotExists);
+    }
+
     // Función que devuelve un plato a partir del nombre
-    public String getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
+    /*public String getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
         if (existeProfesor(new Profesor(nombre))) {
             return getProfesorByName(nombre).getClass().getSimpleName();
         }
@@ -127,7 +228,7 @@ public class StucomZenDAO {
             return getAdministradorByName(nombre).getClass().getSimpleName();
         }
         throw new ExceptionStucomZen(ExceptionStucomZen.userNotExists);
-    }
+    }*/
 
     // Función que devuelve un plato a partir del nombre
     public Profesor getProfesorByName(String nombre) throws SQLException, ExceptionStucomZen {
@@ -297,14 +398,14 @@ public class StucomZenDAO {
         st.close();
         return r;
     }
-    
+
     public Boolean updateUser(String query) throws SQLException {
         Statement st = conexion.createStatement();
         st.executeUpdate(query);
         st.close();
         return true;
     }
-    
+
     public Boolean deleteUser(String nombre, String tipo) throws SQLException {
         String select = "";
         switch (tipo) {
@@ -322,15 +423,17 @@ public class StucomZenDAO {
                 Statement st = conexion.createStatement();
                 ResultSet rs = st.executeQuery(select);
                 if (rs.next()) {
-                    if (rs.getInt("count(*)") > 1) select = "delete from admin where username='" + nombre + "'";
+                    if (rs.getInt("count(*)") > 1) {
+                        select = "delete from admin where username='" + nombre + "'";
+                    }
                 } else {
                     return false;
                 }
                 break;
         }
         /*String select = "delete from customer where username='" + nombre + "' union"
-                + " delete from owner where username='" + nombre + "' union"
-                + " delete from teacher where username='" + nombre + "'";*/
+         + " delete from owner where username='" + nombre + "' union"
+         + " delete from teacher where username='" + nombre + "'";*/
         //String select = "delete from " + tabla + " where username='" + nombre + "'";
         Statement st = conexion.createStatement();
         st.executeUpdate(select);

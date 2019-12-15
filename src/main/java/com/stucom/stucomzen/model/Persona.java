@@ -5,7 +5,7 @@ package com.stucom.stucomzen.model;
  * @author Miguelo
  */
 public class Persona {
-    private String nombreUsuario, password, nombreCompleto;
+    private String nombreUsuario, password, nombreCompleto, tipo;
     
     public Persona() {
     }
@@ -18,6 +18,21 @@ public class Persona {
         this.nombreUsuario = nombreUsuario;
         this.password = password;
         this.nombreCompleto = nombreCompleto;
+    }
+    
+    public Persona(String nombreUsuario, String password, String nombreCompleto, String tipo) {
+        this.nombreUsuario = nombreUsuario;
+        this.password = password;
+        this.nombreCompleto = nombreCompleto;
+        this.tipo = tipo;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     public String getNombreUsuario() {
@@ -46,6 +61,6 @@ public class Persona {
 
     @Override
     public String toString() {
-        return "Persona{" + "nombreUsuario=" + nombreUsuario + ", password=" + password + ", nombreCompleto=" + nombreCompleto + '}';
+        return "Nombre usuario: " + this.nombreUsuario;
     }  
 }
