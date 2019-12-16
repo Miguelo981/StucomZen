@@ -100,25 +100,24 @@ public class StucomZenDAO {
         if (existeActividad(a)) {
             throw new ExceptionStucomZen(ExceptionStucomZen.profesorExists);
         }
-        String insert = "insert into activity values (?, ?, ?, ?, ?, ?, ?)";
+        String insert = "insert into activity values (null, ?, ?, ?, ?, ?, ?)";
         PreparedStatement ps = conexion.prepareStatement(insert);
-        ps.setInt(1, a.getIdActividad());
-        ps.setString(2, a.getNombreActividad().name());    //est.name().equals(estudio.toUpperCase())
-        ps.setInt(3, a.getPlazas());
-        ps.setDouble(4, a.getPrecio());
-        ps.setInt(5, a.getHoras());
-        ps.setString(6, a.getProfesor().getNombreUsuario());
-        ps.setString(7, a.getCentro().getNombreCentro());
+        //ps.setInt(1, a.getIdActividad());
+        ps.setString(1, a.getNombreActividad().name());    //est.name().equals(estudio.toUpperCase())
+        ps.setInt(2, a.getPlazas());
+        ps.setDouble(3, a.getPrecio());
+        ps.setInt(4, a.getHoras());
+        ps.setString(5, a.getProfesor().getNombreUsuario());
+        ps.setString(6, a.getCentro().getNombreCentro());
         ps.executeUpdate();
         ps.close();
     }
 
     // ********************* Inserts ****************************
     public void insertarCiudad(String nombreCiudad) throws SQLException { //TODO ARREGLAR EL AUTOINCREMENT
-        String insert = "insert into city values (?, ?)";
+        String insert = "insert into city values (null, ?)";
         PreparedStatement ps = conexion.prepareStatement(insert);
-        ps.setInt(1, 1);
-        ps.setString(2, nombreCiudad);
+        ps.setString(1, nombreCiudad);
         ps.executeUpdate();
         ps.close();
     }
@@ -144,6 +143,25 @@ public class StucomZenDAO {
     
     public ArrayList<Profesor> getAllProfesoresByTipoActividad(TipoActividad actividad) throws SQLException {
         String select = "select * from teacher where expertise = '"+actividad.name()+"'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Profesor> profesores = new ArrayList<>();
+        while (rs.next()) {
+            Profesor p = new Profesor();
+            p.setNombreUsuario(rs.getString("username"));
+            p.setExperiencia(TipoActividad.valueOf(rs.getString("expertise")));
+            p.setHoras(rs.getInt("hours"));
+            p.setNombreCompleto(rs.getString("fullname"));
+            p.setPassword(rs.getString("pass"));
+            profesores.add(p);
+        }
+        rs.close();
+        st.close();
+        return profesores;
+    }
+    
+    public ArrayList<Profesor> getAllProfesoresByTipoActividadHoras(TipoActividad actividad, int horas) throws SQLException {
+        String select = "select * from teacher inner join activity on activity.teacher = teacher.username where teacher.expertise = '"+actividad.name()+"' group by teacher.username having sum(activity.hours) +"+horas+" <= teacher.hours";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
         ArrayList<Profesor> profesores = new ArrayList<>();
@@ -230,6 +248,25 @@ public class StucomZenDAO {
         return ciudades;
     }
     
+    public ArrayList<Centro> getAllCentros() throws SQLException, ExceptionStucomZen {
+        String select = "select * from center";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Centro> centros = new ArrayList<>();
+        while (rs.next()) {
+            Centro c = new Centro();
+            c.setCiudad(getCiudadById(rs.getInt("city")));
+            c.setHabitaciones(rs.getInt("rooms"));
+            c.setPrecio(rs.getDouble("price"));
+            c.setNombreCentro(rs.getString("name"));
+            c.setPropietario(getPropietarioByName(rs.getString("owner")));
+            centros.add(c);
+        }
+        rs.close();
+        st.close();
+        return centros;
+    }
+    
     public ArrayList<Centro> getAllCentrosByPropietario(String nombre) throws SQLException, ExceptionStucomZen {
         String select = "select * from center where owner= '"+nombre+"'";
         Statement st = conexion.createStatement();
@@ -247,6 +284,27 @@ public class StucomZenDAO {
         rs.close();
         st.close();
         return centros;
+    }
+    
+    public ArrayList<Actividad> getAllActividadesByCentro(String nombre) throws SQLException, ExceptionStucomZen {
+        String select = "select * from activity where center= '"+nombre+"'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Actividad> actividades = new ArrayList<>();
+        while (rs.next()) {
+            Actividad a = new Actividad();
+            a.setIdActividad(rs.getInt("idactivity"));
+            a.setCentro(getCentroByName(rs.getString("center")));
+            a.setPrecio(rs.getDouble("price"));
+            a.setProfesor(getProfesorByName(rs.getString("teacher")));
+            a.setHoras(rs.getInt("hours"));
+            a.setPlazas(rs.getInt("places"));
+            a.setNombreActividad(TipoActividad.valueOf(rs.getString("name").toUpperCase()));
+            actividades.add(a);
+        }
+        rs.close();
+        st.close();
+        return actividades;
     }
 
     public Persona getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
@@ -515,6 +573,14 @@ public class StucomZenDAO {
          borrado = true;
          }*/
         //rs.close();
+        st.close();
+        return true;
+    }
+    
+    public Boolean deleteActividad(int idActividad) throws SQLException {
+        String select = "delete from activity where idactivity="+idActividad;
+        Statement st = conexion.createStatement();
+        st.executeUpdate(select);
         st.close();
         return true;
     }

@@ -19,8 +19,7 @@ public class Actividad {
     
     public Actividad(){}
     
-    public Actividad(int idActividad, int plazas, TipoActividad nombreActividad, double precio, int horas, Profesor profesor, Centro centro) {
-        this.idActividad = idActividad;
+    public Actividad(int plazas, TipoActividad nombreActividad, double precio, int horas, Profesor profesor, Centro centro) {
         this.plazas = plazas;
         this.nombreActividad = nombreActividad;
         this.precio = precio;
@@ -88,4 +87,9 @@ public class Actividad {
     public void setCentro(Centro centro) {
         this.centro = centro;
     }
+
+    @Override
+    public String toString() {
+        return "Actividad: "+this.getNombreActividad()+", precio: "+this.getPrecio()+", horas semanales: "+this.getHoras()+", plazas: "+this.getPlazas();
+    }    
 }

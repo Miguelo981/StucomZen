@@ -73,8 +73,13 @@ public class FuncionUsuario {
                             stucomZenDao.insertarCliente(new Cliente(stucomZenDao.getCiudadByName(ciudad), nombreUsuario, password, nombreCompleto));
                             break;
                         case 2:
-                            String experiencia = InputAsker.askString("Experiencia: ", 20);
-                            stucomZenDao.insertarProfesor(new Profesor(TipoActividad.valueOf(experiencia.toUpperCase()), 0, nombreUsuario, password, nombreCompleto));
+                            String actividad = InputAsker.askString("Especialidad: ", 20);
+                            if (checkActividad(actividad)) {
+                                int horas = InputAsker.askInt("Numero de horas maximas: ", 1, 48);
+                                stucomZenDao.insertarProfesor(new Profesor(TipoActividad.valueOf(actividad.toUpperCase()), horas, nombreUsuario, password, nombreCompleto));
+                            } else {
+                                System.out.println("No existe ninguna activida con ese nombre.");
+                            }
                             break;
                         case 3:
                             String email = InputAsker.askString("Email: ", 60);
@@ -452,7 +457,17 @@ public class FuncionUsuario {
     }
 
     private void getAllActividades() {
-        ;
+        try {
+            for (int i = 0; i < stucomZenDao.getAllCentros().size(); i++) {
+                System.out.println(" -- " + stucomZenDao.getAllCentros().get(i).toString());
+                for (int j = 0; j < stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).size(); j++) {
+                    System.out.println(" - " + stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).toString());
+                }
+                System.out.println("");
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void crearCentro() {
@@ -503,20 +518,22 @@ public class FuncionUsuario {
                 String actividad = InputAsker.askString("Introduce el nombre de la actividad: ");
                 if (checkActividad(actividad)) {
                     TipoActividad tipo = TipoActividad.valueOf(actividad.toUpperCase());
-                    if (stucomZenDao.getAllProfesoresByTipoActividad(tipo).size() > 0) {
-                        for (int i = 0; i < stucomZenDao.getAllProfesoresByTipoActividad(tipo).size(); i++) {
-                            System.out.println((i + 1) + ".- " + stucomZenDao.getAllProfesoresByTipoActividad(tipo).get(i).toString());
+                    if (stucomZenDao.getAllProfesoresByTipoActividadHoras(tipo, horasSemanales).size() > 0) {
+                        for (int i = 0; i < stucomZenDao.getAllProfesoresByTipoActividadHoras(tipo, horasSemanales).size(); i++) {
+                            System.out.println((i + 1) + ".- " + stucomZenDao.getAllProfesoresByTipoActividadHoras(tipo, horasSemanales).get(i).toString());
                         }
-                        int indiceProfesor = InputAsker.askInt("Id del profesor: ", 1, stucomZenDao.getAllProfesoresByTipoActividad(tipo).size());
+                        int indiceProfesor = InputAsker.askInt("Id del profesor: ", 1, stucomZenDao.getAllProfesoresByTipoActividadHoras(tipo, horasSemanales).size());
                         //Comprobar horas y controlar el indice autoincrement de los centros
-                        stucomZenDao.insertarActividad(new Actividad(indiceCentro, numeroPlazas, tipo, precio, horasSemanales, stucomZenDao.getAllProfesoresByTipoActividad(tipo).get(indiceProfesor-1), stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(indiceCentro-1)));
-                        System.out.println("Actividad registrada con exito!"); 
+                        stucomZenDao.insertarActividad(new Actividad(numeroPlazas, tipo, precio, horasSemanales, stucomZenDao.getAllProfesoresByTipoActividadHoras(tipo, horasSemanales).get(indiceProfesor - 1), stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(indiceCentro - 1)));
+                        System.out.println("Actividad registrada con exito!");
                     } else {
                         System.out.println("No hay profesores disponibles para esta actividad.");
                     }
                 } else {
                     System.out.println("No existe ninguna activdad con ese nombre.");
                 }
+            } else {
+                System.out.println("No tienes ningun centro creado.");
             }
         } catch (SQLException | ExceptionStucomZen ex) {
             Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
@@ -524,7 +541,31 @@ public class FuncionUsuario {
     }
 
     private void borrarActividad() {
-
+        try {
+            if (stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).size() > 0) {
+                for (int i = 0; i < stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).size(); i++) {
+                    System.out.println((i + 1) + ".- " + stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(i).toString());
+                }
+                int indiceCentro = InputAsker.askInt("Id de la Centro: ", 1, stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).size());
+                if (stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).size() > 0) {
+                    for (int i = 0; i < stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(indiceCentro - 1).getNombreCentro()).size(); i++) {
+                        System.out.println((i + 1) + ".- " + stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(indiceCentro - 1).getNombreCentro()).get(i).toString());
+                    }
+                    int indiceActividad = InputAsker.askInt("Id de la Actividad: ", 1, stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(indiceCentro - 1).getNombreCentro()).size());
+                    if (InputAsker.askString("Estas seguro? (Si/No)").equalsIgnoreCase("si")) {
+                        if (stucomZenDao.deleteActividad(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.usuario.getNombreUsuario()).get(indiceCentro - 1).getNombreCentro()).get(indiceActividad - 1).getIdActividad())) {
+                            System.out.println("Actividad borrada con exito!");
+                        }
+                    }
+                } else {
+                    System.out.println("Tu centro aun no tiene actividades registradas.");
+                }
+            } else {
+                System.out.println("No tienes ningun centro creado.");
+            }
+        } catch (ExceptionStucomZen | SQLException ex) {
+            System.out.println("Error al borrar la actividad.");
+        }
     }
 
     private void verPlazasDisponibles() {
