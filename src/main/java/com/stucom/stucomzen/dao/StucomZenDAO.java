@@ -3,12 +3,14 @@ package com.stucom.stucomzen.dao;
 import com.stucom.stucomzen.exceptions.ExceptionStucomZen;
 import com.stucom.stucomzen.model.*;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 
 /**
@@ -122,6 +124,25 @@ public class StucomZenDAO {
         ps.close();
     }
 
+    // ********************* Inserts ****************************
+    public void insertarRegistro(Registro r) throws ExceptionStucomZen, SQLException {
+        if (!existeRegistro(r)) {
+            String insert = "insert into registration values (?, ?, ?)";
+            PreparedStatement ps = conexion.prepareStatement(insert);
+            //ps.setInt(1, a.getIdActividad());
+            ps.setString(1, r.getCliente().getNombreUsuario());    //est.name().equals(estudio.toUpperCase())
+            ps.setInt(2, r.getActividad().getIdActividad());
+            //Date date = Date.valueOf(LocalDate.now());
+            //LocalDate localDate = Date.valueOf().toLocalDate();
+            //LocalDate current = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            ps.setDate(3, Date.valueOf(LocalDate.now()));
+            ps.executeUpdate();
+            ps.close();
+        } else {
+            throw new ExceptionStucomZen(ExceptionStucomZen.registroExists);
+        }
+    }
+
     public ArrayList<Profesor> getAllProfesores() throws SQLException {
         String select = "select * from teacher";
         Statement st = conexion.createStatement();
@@ -140,9 +161,9 @@ public class StucomZenDAO {
         st.close();
         return profesores;
     }
-    
+
     public ArrayList<Profesor> getAllProfesoresByTipoActividad(TipoActividad actividad) throws SQLException {
-        String select = "select * from teacher where expertise = '"+actividad.name()+"'";
+        String select = "select * from teacher where expertise = '" + actividad.name() + "'";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
         ArrayList<Profesor> profesores = new ArrayList<>();
@@ -159,9 +180,9 @@ public class StucomZenDAO {
         st.close();
         return profesores;
     }
-    
+
     public ArrayList<Profesor> getAllProfesoresByTipoActividadHoras(TipoActividad actividad, int horas) throws SQLException {
-        String select = "select * from teacher inner join activity on activity.teacher = teacher.username where teacher.expertise = '"+actividad.name()+"' group by teacher.username having sum(activity.hours) +"+horas+" <= teacher.hours";
+        String select = "select * from teacher inner join activity on activity.teacher = teacher.username where teacher.expertise = '" + actividad.name() + "' group by teacher.username having sum(activity.hours) +" + horas + " <= teacher.hours";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
         ArrayList<Profesor> profesores = new ArrayList<>();
@@ -231,7 +252,7 @@ public class StucomZenDAO {
         st.close();
         return administradores;
     }
-    
+
     public ArrayList<Ciudad> getAllCiudades() throws SQLException, ExceptionStucomZen {
         String select = "select * from city";
         Statement st = conexion.createStatement();
@@ -247,7 +268,7 @@ public class StucomZenDAO {
         st.close();
         return ciudades;
     }
-    
+
     public ArrayList<Centro> getAllCentros() throws SQLException, ExceptionStucomZen {
         String select = "select * from center";
         Statement st = conexion.createStatement();
@@ -266,9 +287,9 @@ public class StucomZenDAO {
         st.close();
         return centros;
     }
-    
+
     public ArrayList<Centro> getAllCentrosByPropietario(String nombre) throws SQLException, ExceptionStucomZen {
-        String select = "select * from center where owner= '"+nombre+"'";
+        String select = "select * from center where owner= '" + nombre + "'";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
         ArrayList<Centro> centros = new ArrayList<>();
@@ -285,9 +306,9 @@ public class StucomZenDAO {
         st.close();
         return centros;
     }
-    
+
     public ArrayList<Actividad> getAllActividadesByCentro(String nombre) throws SQLException, ExceptionStucomZen {
-        String select = "select * from activity where center= '"+nombre+"'";
+        String select = "select * from activity where center= '" + nombre + "'";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
         ArrayList<Actividad> actividades = new ArrayList<>();
@@ -305,6 +326,45 @@ public class StucomZenDAO {
         rs.close();
         st.close();
         return actividades;
+    }
+
+    public ArrayList<Actividad> getAllActividadesCiudad(TipoActividad actividad, int idCiudad) throws SQLException, ExceptionStucomZen {
+        String select = "select * from activity inner join center on center.name = activity.center where activity.name = '" + actividad.name() + "' order by case center.city when " + idCiudad + " then 1 else -1 end asc, center.city desc";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Actividad> actividades = new ArrayList<>();
+        while (rs.next()) {
+            Actividad a = new Actividad();
+            a.setIdActividad(rs.getInt("idactivity"));
+            a.setCentro(getCentroByName(rs.getString("center")));
+            a.setPrecio(rs.getDouble("price"));
+            a.setProfesor(getProfesorByName(rs.getString("teacher")));
+            a.setHoras(rs.getInt("hours"));
+            a.setPlazas(rs.getInt("places"));
+            a.setNombreActividad(TipoActividad.valueOf(rs.getString("name").toUpperCase()));
+            actividades.add(a);
+        }
+        rs.close();
+        st.close();
+        return actividades;
+    }
+
+    public ArrayList<Registro> getAllRegistros() throws SQLException, ExceptionStucomZen {
+        String select = "select * from registration";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Registro> registros = new ArrayList<>();
+        //String select = "select * from registration where idactivity=" + idActividad + " and customer ='" + nombreCliente + "'";
+        if (rs.next()) {
+            Registro r = new Registro();
+            r.setActividad(getActividadById(rs.getInt("activity")));
+            r.setCliente(getClienteByName("customer"));
+            r.setFecha(LocalDate.parse(rs.getString("date")));
+            registros.add(r);
+        }
+        rs.close();
+        st.close();
+        return registros;
     }
 
     public Persona getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
@@ -327,21 +387,20 @@ public class StucomZenDAO {
 
     // Función que devuelve un plato a partir del nombre
     /*public String getPersonaByName(String nombre) throws SQLException, ExceptionStucomZen {
-        if (existeProfesor(new Profesor(nombre))) {
-            return getProfesorByName(nombre).getClass().getSimpleName();
-        }
-        if (existePropietario(new Propietario(nombre))) {
-            return getPropietarioByName(nombre).getClass().getSimpleName();
-        }
-        if (existeCliente(new Cliente(nombre))) {
-            return getClienteByName(nombre).getClass().getSimpleName();
-        }
-        if (existeAdministrador(new Administrador(nombre))) {
-            return getAdministradorByName(nombre).getClass().getSimpleName();
-        }
-        throw new ExceptionStucomZen(ExceptionStucomZen.userNotExists);
-    }*/
-
+     if (existeProfesor(new Profesor(nombre))) {
+     return getProfesorByName(nombre).getClass().getSimpleName();
+     }
+     if (existePropietario(new Propietario(nombre))) {
+     return getPropietarioByName(nombre).getClass().getSimpleName();
+     }
+     if (existeCliente(new Cliente(nombre))) {
+     return getClienteByName(nombre).getClass().getSimpleName();
+     }
+     if (existeAdministrador(new Administrador(nombre))) {
+     return getAdministradorByName(nombre).getClass().getSimpleName();
+     }
+     throw new ExceptionStucomZen(ExceptionStucomZen.userNotExists);
+     }*/
     // Función que devuelve un plato a partir del nombre
     public Profesor getProfesorByName(String nombre) throws SQLException, ExceptionStucomZen {
         Profesor aux = new Profesor(nombre);
@@ -471,7 +530,7 @@ public class StucomZenDAO {
         st.close();
         return c;
     }
-    
+
     public Ciudad getCiudadById(int id) throws SQLException, ExceptionStucomZen {
         Ciudad aux = new Ciudad(id);
         if (!existeCiudadId(aux)) {
@@ -576,9 +635,9 @@ public class StucomZenDAO {
         st.close();
         return true;
     }
-    
+
     public Boolean deleteActividad(int idActividad) throws SQLException {
-        String select = "delete from activity where idactivity="+idActividad;
+        String select = "delete from activity where idactivity=" + idActividad;
         Statement st = conexion.createStatement();
         st.executeUpdate(select);
         st.close();
@@ -700,7 +759,7 @@ public class StucomZenDAO {
         }
         return existe;
     }
-    
+
     private boolean existeCiudadId(Ciudad c) throws SQLException {
         String select = "select * from city where idcity='" + c.getIdCiudad() + "'";
         boolean existe;
@@ -715,7 +774,7 @@ public class StucomZenDAO {
 
     // ********************* Funciones auxiliares ****************************
     private boolean existeRegistro(Registro r) throws SQLException {
-        String select = "select * from registration where activity='" + r.getActividad() + "' and customer ='" + r.getCliente() + "'";
+        String select = "select * from registration where activity='" + r.getActividad().getIdActividad() + "' and customer ='" + r.getCliente().getNombreUsuario() + "'";
         boolean existe;
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
@@ -738,6 +797,19 @@ public class StucomZenDAO {
         }
         return existe;
     }
+
+    /*public Boolean existRegistroByActivityUser(int idActividad, String nombreCliente) throws SQLException {
+        String select = "select * from registration where idactivity=" + idActividad + " and customer ='" + nombreCliente + "'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        boolean existe = false;
+        if (rs.next()) {
+            existe = true;
+        }
+        rs.close();
+        st.close();
+        return existe;
+    }*/
 
     // ********************* Conectar / Desconectar ****************************
     public void conectar() throws SQLException {
