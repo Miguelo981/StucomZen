@@ -18,6 +18,7 @@ public class ExceptionStucomZen extends Exception {
     public static final String adminExists = "ERROR: Ya existe un administrador con ese nombre";
     public static final String ciudadNotExists = "ERROR: No existe ninguna ciudad con ese nombre";
     public static final String registroExists = "ERROR: Ya estas inscrito a esta actividad";
+    public static final String activityNoExists = "ERROR: No existe ninguna actividad con dicho nombre";
     
     
     

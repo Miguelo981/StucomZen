@@ -43,7 +43,7 @@ public class StucomZen {
             } while (opcion != 0);
             stucomZenDao.desconectar();
         } catch (SQLException ex) {
-            Logger.getLogger(StucomZen.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -53,7 +53,7 @@ public class StucomZen {
             Profesor prof = stucomZenDao.getProfesorByName(InputAsker.askString("Dime nombre de profesor"));
             System.out.println(prof.toString());
         } catch (SQLException | ExceptionStucomZen ex) {
-            Logger.getLogger(StucomZen.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -88,7 +88,7 @@ public class StucomZen {
                 throw new ExceptionStucomZen(ExceptionStucomZen.passwordIncorrecta);
             }
         } catch (SQLException | ExceptionStucomZen ex) {
-            System.out.println(ex);
+            System.out.println(ex.getMessage());
         }
     }
 }

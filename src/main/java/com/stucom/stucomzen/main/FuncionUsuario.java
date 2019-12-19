@@ -97,7 +97,7 @@ public class FuncionUsuario {
             } while (opcion != 0);
             stucomZenDao.desconectar();
         } catch (SQLException | ExceptionStucomZen ex) {
-            System.out.println(ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -197,7 +197,7 @@ public class FuncionUsuario {
             } while (opcion != 0);
             stucomZenDao.desconectar();
         } catch (SQLException ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -394,7 +394,7 @@ public class FuncionUsuario {
                         getFuncionesEditarExtra(this.usuario.getTipo(), opcion);
                 }
             } catch (SQLException | ExceptionStucomZen ex) {
-                System.out.println("Error al modificar campo. " + ex);
+                System.out.println("Error al modificar campo. " + ex.getMessage());
             }
         } while (opcion != 0);
     }
@@ -419,7 +419,7 @@ public class FuncionUsuario {
             stucomZenDao.insertarCiudad(InputAsker.askString("Nombre de la ciudad: ", 50));
             System.out.println("Ciudad registrada con exito!");
         } catch (ExceptionStucomZen | SQLException ex) {
-            System.out.println(ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -442,7 +442,7 @@ public class FuncionUsuario {
                 System.out.println("- " + stucomZenDao.getAllAdministradores(this.usuario.getTipo()).get(i).toString());
             }
         } catch (SQLException | ExceptionStucomZen ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -459,7 +459,7 @@ public class FuncionUsuario {
                 System.out.println("Ese usuario no existe o es el usuario actual.");
             }
         } catch (ExceptionStucomZen | SQLException ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -473,7 +473,7 @@ public class FuncionUsuario {
                 System.out.println("");
             }
         } catch (SQLException | ExceptionStucomZen ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -493,7 +493,7 @@ public class FuncionUsuario {
                 stucomZenDao.insertarCentro(new Centro(nombreCentro, ciudad, habitaciones, precio, this.propietario));
                 System.out.println("Centro registrado con exito!");
             } catch (SQLException | ExceptionStucomZen ex) {
-                System.out.println(ex);;
+                System.out.println(ex.getMessage());;
             }
         } while (opcion != 0);
     }
@@ -543,7 +543,7 @@ public class FuncionUsuario {
                 System.out.println("No tienes ningun centro creado.");
             }
         } catch (SQLException | ExceptionStucomZen ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -580,7 +580,21 @@ public class FuncionUsuario {
     }
 
     private void cuotaTotal() {
+        try {
+            for (int i = 0; i < stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).size(); i++) {
+                for (int j = 0; j < stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).size(); j++) {
+                    System.out.print("- Centro: " + stucomZenDao.getAllCentros().get(i).getNombreCentro() + ", " + stucomZenDao.getCiudadById(stucomZenDao.getAllCentros().get(i).getCiudad().getIdCiudad()) + " - " + stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).toString());
+                    System.out.println(" Ingresos totales: "+stucomZenDao.getCuotaTotalPorCentro(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad())+"€");
+                    for (int k = 0; k < stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).size(); k++) {
+                        System.out.println("\t" + (k + 1) + ".- " + stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).get(k).getCliente().toString() + " - Alta: " + stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).get(k).getFecha());
+                    }
+                    System.out.println("");
 
+                }
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            System.out.println(ex.getMessage());;
+        }
     }
 
     private void actividadesAsignadas() {
@@ -593,12 +607,26 @@ public class FuncionUsuario {
                 }
             }
         } catch (SQLException | ExceptionStucomZen ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
     private void alumnosPorActividad() {
-
+        try {
+            for (int i = 0; i < stucomZenDao.getAllCentros().size(); i++) {
+                for (int j = 0; j < stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).size(); j++) {
+                    if (stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).getProfesor().getNombreUsuario().equals(this.profesor.getNombreUsuario())) {
+                        System.out.println("- Centro: " + stucomZenDao.getAllCentros().get(i).getNombreCentro() + ", " + stucomZenDao.getCiudadById(stucomZenDao.getAllCentros().get(i).getCiudad().getIdCiudad()) + " - " + stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).toString());
+                        for (int k = 0; k < stucomZenDao.getAllRegistroByProfesor(this.profesor, stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).getIdActividad()).size(); k++) {
+                            System.out.println("\t" + (k + 1) + ".- " + stucomZenDao.getAllRegistroByProfesor(this.profesor, stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).getIdActividad()).get(k).getCliente().toString() + " - Alta: " + stucomZenDao.getAllRegistroByProfesor(this.profesor, stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).getIdActividad()).get(k).getFecha());
+                        }
+                        System.out.println("");
+                    }
+                }
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            System.out.println(ex.getMessage());;
+        }
     }
 
     private void sueldo() {
@@ -618,11 +646,11 @@ public class FuncionUsuario {
                 System.out.println("No tiene actividades registradas, por lo que no obtendra ganacias.");
             }
         } catch (SQLException | ExceptionStucomZen ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
-    private void inscribirseActividad() {
+    private void inscribirseActividad() { //TODO COMPROBAR SI QUEDAN PLAZAS PARA UNIRSE
         try {
             String actividad = InputAsker.askString("Introduce el nombre de la actividad: ");
             if (checkActividad(actividad)) {
@@ -644,19 +672,57 @@ public class FuncionUsuario {
                 System.out.println("No existe ninguna activdad con ese nombre.");
             }
         } catch (SQLException | ExceptionStucomZen ex) {
-            Logger.getLogger(FuncionUsuario.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 
     private void bajaActividad() {
-
+        try {
+            if (stucomZenDao.getAllActividadesByCliente(this.cliente).size() > 0) {
+                for (int i = 0; i < stucomZenDao.getAllActividadesByCliente(this.cliente).size(); i++) {
+                    System.out.println((i + 1) + ".- " + stucomZenDao.getAllActividadesByCliente(this.cliente).get(i).getCentro().getNombreCentro() + ", Ciudad: " + stucomZenDao.getAllActividadesByCliente(this.cliente).get(i).getCentro().getCiudad().getNombreCiudad() + ", " + stucomZenDao.getAllActividadesByCliente(this.cliente).get(i).toString());
+                }
+                int indiceActividad = InputAsker.askInt("Id de la Actividad: ", 1, stucomZenDao.getAllActividadesByCliente(this.cliente).size());
+                if (stucomZenDao.deleteRegistro(stucomZenDao.getAllActividadesByCliente(this.cliente).get(indiceActividad - 1))) {
+                    System.out.println("Baja realizada con exito!");
+                } else {
+                    System.out.println("Error durante la eliminacion del registro.");
+                }
+            } else {
+                System.out.println("No estas inscrito en ninguna actividad.");
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void actividadesInscritas() {
-
+        try {
+            if (stucomZenDao.getAllActividadesByCliente(this.cliente).size() > 0) {
+                for (int i = 0; i < stucomZenDao.getAllActividadesByCliente(this.cliente).size(); i++) {
+                    System.out.println((i + 1) + ".- " + stucomZenDao.getAllActividadesByCliente(this.cliente).get(i).getCentro().getNombreCentro() + ", Ciudad: " + stucomZenDao.getAllActividadesByCliente(this.cliente).get(i).getCentro().getCiudad().getNombreCiudad() + ", " + stucomZenDao.getAllActividadesByCliente(this.cliente).get(i).toString());
+                }
+            } else {
+                System.out.println("No estas inscrito en ninguna actividad.");
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void cuotaCliente() {
-
+        try {
+            if (stucomZenDao.getAllActividadesByCliente(this.cliente).size() > 0) {
+                double gastoTotal = 0;
+                for (int i = 0; i < stucomZenDao.getAllActividadesByCliente(this.cliente).size(); i++) {
+                    gastoTotal += stucomZenDao.getAllActividadesByCliente(this.cliente).get(i).getPrecio();
+                }
+                System.out.println("Cuota total a pagar: " + gastoTotal + "€");
+            } else {
+                System.out.println("No estas inscrito en ninguna actividad.");
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }
