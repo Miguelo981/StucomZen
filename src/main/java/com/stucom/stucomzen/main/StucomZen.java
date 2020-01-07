@@ -4,8 +4,6 @@ import com.stucom.stucomzen.model.*;
 import com.stucom.stucomzen.dao.StucomZenDAO;
 import com.stucom.stucomzen.exceptions.ExceptionStucomZen;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -25,6 +23,9 @@ public class StucomZen {
         System.out.println("0.- Salir.");
     }
 
+    /**
+     * Funcionos basicas del menu de inicio
+     */
     public void opcionesMenuPrincipal() {
         try {
             int opcion = 0;
@@ -47,21 +48,17 @@ public class StucomZen {
         }
     }
 
-    public void menu() throws ExceptionStucomZen, SQLException {
-        try {
-            //stucomZenDao.insertarProfesor(new Profesor("mucha", 4, "mika", "mika", "jerardo felix"));
-            Profesor prof = stucomZenDao.getProfesorByName(InputAsker.askString("Dime nombre de profesor"));
-            System.out.println(prof.toString());
-        } catch (SQLException | ExceptionStucomZen ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
+    /**
+     * Funcion para registrar un usuario
+     */
     private void registrarUsuario() {
         FuncionUsuario funciones = new FuncionUsuario();
         funciones.registrarUsuario(this);
     }
 
+    /**
+     * Funcion para logear al usuario
+     */
     private void login() {
         try {
             String nombreUsuario = InputAsker.askString("Nombre de usuario: ");
