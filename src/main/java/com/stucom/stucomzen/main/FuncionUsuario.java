@@ -402,9 +402,19 @@ public class FuncionUsuario {
     private void borrarCuenta() {
         if (InputAsker.askString("Estas seguro? (Si/No)").equalsIgnoreCase("si")) {
             try {
-                stucomZenDao.deleteUser(this.usuario.getNombreUsuario(), this.usuario.getTipo());
-                System.out.println("Cuenta eliminada con exito!");
-            } catch (SQLException ex) {
+                if (this.profesor != null) {
+                    for (int i = 0; i < stucomZenDao.getAllActividadesByProfesor(this.profesor).size(); i++) {
+                        if (!stucomZenDao.deleteActividad(stucomZenDao.getAllActividadesByProfesor(this.profesor).get(i).getIdActividad())) {
+                            System.out.println("Error al borrar la actividad asociada al usuario.");
+                        } 
+                    }
+                    stucomZenDao.deleteUser(this.usuario.getNombreUsuario(), this.usuario.getTipo());
+                    System.out.println("Cuenta eliminada con exito!");
+                } else {
+                    stucomZenDao.deleteUser(this.usuario.getNombreUsuario(), this.usuario.getTipo());
+                    System.out.println("Cuenta eliminada con exito!");
+                }
+            } catch (SQLException | ExceptionStucomZen ex) {
                 if (this.usuario.getTipo().equals("Administrador")) {
                     System.out.println("Eres el unico administrador, no puedes eliminarte");
                 } else {
@@ -576,20 +586,35 @@ public class FuncionUsuario {
     }
 
     private void verPlazasDisponibles() {
-
+        try {
+            for (int i = 0; i < stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).size(); i++) {
+                for (int j = 0; j < stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).size(); j++) {
+                    Actividad a = stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j);
+                    if (stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).getPlazas() - stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).size() - a.getPlazas() != 0) {
+                        System.out.print("- Centro: " + stucomZenDao.getAllCentros().get(i).getNombreCentro() + ", " + stucomZenDao.getCiudadById(stucomZenDao.getAllCentros().get(i).getCiudad().getIdCiudad()) + " - Profesor: " + a.getProfesor().getNombreCompleto() + ", actividad: " + a.getIdActividad() + ", precio: " + a.getPrecio() + ", horas semanales: " + a.getHoras() + ", plazas disponibles: "); //stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j)
+                        System.out.println((stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).getPlazas() - stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).size()) + "/" + a.getPlazas());
+                        System.out.println("");
+                    }
+                }
+            }
+        } catch (SQLException | ExceptionStucomZen ex) {
+            System.out.println(ex.getMessage());;
+        }
     }
 
     private void cuotaTotal() {
         try {
             for (int i = 0; i < stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).size(); i++) {
                 for (int j = 0; j < stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).size(); j++) {
-                    System.out.print("- Centro: " + stucomZenDao.getAllCentros().get(i).getNombreCentro() + ", " + stucomZenDao.getCiudadById(stucomZenDao.getAllCentros().get(i).getCiudad().getIdCiudad()) + " - " + stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).toString());
-                    System.out.println(" Ingresos totales: "+stucomZenDao.getCuotaTotalPorCentro(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad())+"€");
+                    Actividad a = stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j);
+                    System.out.print("- Centro: " + stucomZenDao.getAllCentros().get(i).getNombreCentro() + ", " + stucomZenDao.getCiudadById(stucomZenDao.getAllCentros().get(i).getCiudad().getIdCiudad()) + ", Actividad: " + a.getIdActividad() + ", precio: " + a.getPrecio() + ", horas semanales: " + a.getHoras() + ", plazas disponibles: ");
+                    System.out.print((stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).getPlazas() - stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).size()) + "/" + a.getPlazas());
+                    //System.out.print("- Centro: " + stucomZenDao.getAllCentros().get(i).getNombreCentro() + ", " + stucomZenDao.getCiudadById(stucomZenDao.getAllCentros().get(i).getCiudad().getIdCiudad()) + " - " + stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentros().get(i).getNombreCentro()).get(j).toString());
+                    System.out.println(", Ingresos totales: " + stucomZenDao.getCuotaTotalPorCentro(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()) + "€");
                     for (int k = 0; k < stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).size(); k++) {
                         System.out.println("\t" + (k + 1) + ".- " + stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).get(k).getCliente().toString() + " - Alta: " + stucomZenDao.getAllRegistroByProfesor(stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getProfesor(), stucomZenDao.getAllActividadesByCentro(stucomZenDao.getAllCentrosByPropietario(this.propietario.getNombreUsuario()).get(i).getNombreCentro()).get(j).getIdActividad()).get(k).getFecha());
                     }
                     System.out.println("");
-
                 }
             }
         } catch (SQLException | ExceptionStucomZen ex) {
@@ -657,7 +682,8 @@ public class FuncionUsuario {
                 TipoActividad tipo = TipoActividad.valueOf(actividad.toUpperCase());
                 if (stucomZenDao.getAllProfesoresByTipoActividad(tipo).size() > 0) {
                     for (int i = 0; i < stucomZenDao.getAllActividadesCiudad(tipo, this.cliente.getCiudad().getIdCiudad()).size(); i++) {
-                        System.out.println((i + 1) + ".- Centro: " + stucomZenDao.getAllCentros().get(i).getNombreCentro() + ", " + stucomZenDao.getCiudadById(stucomZenDao.getAllCentros().get(i).getCiudad().getIdCiudad()) + " - " + stucomZenDao.getAllActividadesCiudad(tipo, this.cliente.getCiudad().getIdCiudad()).get(i).toString());
+                        Actividad a = stucomZenDao.getAllActividadesCiudad(tipo, this.cliente.getCiudad().getIdCiudad()).get(i);
+                        System.out.println((i + 1) + ".- Centro: " + stucomZenDao.getAllActividadesCiudad(tipo, this.cliente.getCiudad().getIdCiudad()).get(i).getCentro().getNombreCentro() + ", Ciudad: " + stucomZenDao.getAllActividadesCiudad(tipo, this.cliente.getCiudad().getIdCiudad()).get(i).getCentro().getCiudad().getNombreCiudad() + " - " + stucomZenDao.getAllActividadesCiudad(tipo, this.cliente.getCiudad().getIdCiudad()).get(i).toString());
                     }
                     int indiceActividad = InputAsker.askInt("Id de la Actividad: ", 1, stucomZenDao.getAllActividadesCiudad(tipo, this.cliente.getCiudad().getIdCiudad()).size());
                     //if (stucomZenDao.existRegistroByActivityUser(indiceActividad, this.cliente.getNombreUsuario())) {

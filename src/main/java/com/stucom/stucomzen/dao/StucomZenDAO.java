@@ -161,28 +161,52 @@ public class StucomZenDAO {
         st.close();
         return profesores;
     }
-
-    public ArrayList<Profesor> getAllProfesoresByTipoActividad(TipoActividad actividad) throws SQLException {
-        String select = "select * from teacher where expertise = '" + actividad.name() + "'";
+    
+    public ArrayList<Actividad> getAllProfesoresByTipoActividad(TipoActividad nombre) throws SQLException, ExceptionStucomZen {
+        String select = "select * from teacher where expertise = '" + nombre + "'";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
-        ArrayList<Profesor> profesores = new ArrayList<>();
+        ArrayList<Actividad> actividades = new ArrayList<>();
         while (rs.next()) {
-            Profesor p = new Profesor();
-            p.setNombreUsuario(rs.getString("username"));
-            p.setExperiencia(TipoActividad.valueOf(rs.getString("expertise")));
-            p.setHoras(rs.getInt("hours"));
-            p.setNombreCompleto(rs.getString("fullname"));
-            p.setPassword(rs.getString("pass"));
-            profesores.add(p);
+            Actividad a = new Actividad();
+            a.setIdActividad(rs.getInt("idactivity"));
+            a.setCentro(getCentroByName(rs.getString("center")));
+            a.setPrecio(rs.getDouble("price"));
+            a.setProfesor(getProfesorByName(rs.getString("teacher")));
+            a.setHoras(rs.getInt("hours"));
+            a.setPlazas(rs.getInt("places"));
+            a.setNombreActividad(TipoActividad.valueOf(rs.getString("name").toUpperCase()));
+            actividades.add(a);
         }
         rs.close();
         st.close();
-        return profesores;
+        return actividades;
+    }
+    
+    public ArrayList<Actividad> getAllActividadesByProfesor(Profesor p) throws SQLException, ExceptionStucomZen {
+        String select = "select * from activity where teacher= '" + p.getNombreUsuario() + "'";
+        Statement st = conexion.createStatement();
+        ResultSet rs = st.executeQuery(select);
+        ArrayList<Actividad> actividades = new ArrayList<>();
+        while (rs.next()) {
+            Actividad a = new Actividad();
+            a.setIdActividad(rs.getInt("idactivity"));
+            a.setCentro(getCentroByName(rs.getString("center")));
+            a.setPrecio(rs.getDouble("price"));
+            a.setProfesor(getProfesorByName(rs.getString("teacher")));
+            a.setHoras(rs.getInt("hours"));
+            a.setPlazas(rs.getInt("places"));
+            a.setNombreActividad(TipoActividad.valueOf(rs.getString("name").toUpperCase()));
+            actividades.add(a);
+        }
+        rs.close();
+        st.close();
+        return actividades;
     }
 
     public ArrayList<Profesor> getAllProfesoresByTipoActividadHoras(TipoActividad actividad, int horas) throws SQLException {
-        String select = "select * from teacher inner join activity on activity.teacher = teacher.username where teacher.expertise = '" + actividad.name() + "' group by teacher.username having sum(activity.hours) +" + horas + " <= teacher.hours";
+        String select = "select * from teacher where (hours >= " + horas + " and expertise = '" + actividad.name() + "' and username not in (select teacher from activity)) or (select (sum(activity.hours) + " + horas + ") as sumatorio from teacher inner join activity on activity.teacher = teacher.username where teacher.expertise = '" + actividad.name() + "' group by teacher.username) <= hours ";
+        //String select = "select * from teacher inner join activity on activity.teacher = teacher.username where teacher.expertise = '" + actividad.name() + "' group by teacher.username having sum(activity.hours) +" + horas + " <= teacher.hours";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
         ArrayList<Profesor> profesores = new ArrayList<>();
@@ -209,7 +233,7 @@ public class StucomZenDAO {
             Cliente c = new Cliente();
             c.setNombreUsuario(rs.getString("username"));
             c.setNombreCompleto(rs.getString("fullname"));
-            c.setCiudad(getCiudadByName(rs.getString("city")));
+            c.setCiudad(getCiudadById(rs.getInt("city")));
             c.setPassword(rs.getString("pass"));
             clientes.add(c);
         }
@@ -522,7 +546,7 @@ public class StucomZenDAO {
         if (!existeCentro(aux)) {
             throw new ExceptionStucomZen(ExceptionStucomZen.profesorNotExists);
         }
-        String select = "select * from owner where username='" + nombre + "'";
+        String select = "select * from center where name='" + nombre + "'";
         Statement st = conexion.createStatement();
         ResultSet rs = st.executeQuery(select);
         Centro c = new Centro();
@@ -530,8 +554,8 @@ public class StucomZenDAO {
             c.setNombreCentro(nombre);
             c.setHabitaciones(rs.getInt("rooms"));
             c.setPrecio(rs.getDouble("price"));
-            c.setPropietario(getPropietarioByName(rs.getString("name")));
-            c.setCiudad(getCiudadByName(rs.getString("city")));
+            c.setPropietario(getPropietarioByName(rs.getString("owner")));
+            c.setCiudad(getCiudadById(rs.getInt("city")));
         }
         rs.close();
         st.close();
